@@ -24,6 +24,7 @@ interface SidebarProps {
   stepStatuses: Record<string, StepStatus>;
   role: UserRole;
   onChangeRole?: (newRole: UserRole) => void;
+  onLogout?: () => void;
   extFlag: boolean;
 }
 
@@ -42,6 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   stepStatuses,
   role,
   onChangeRole,
+  onLogout,
   extFlag,
 }) => {
   // OPERATOR / ANNOTATOR VIEW (Matches the attached mockup screenshot!)
@@ -81,21 +83,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
-        {/* Bottom: Exit Operator Mode to Admin View */}
-        <div className="pt-3 border-t border-line">
+        {/* Bottom: Exit to Login or switch to Admin View */}
+        <div className="pt-3 border-t border-line space-y-1">
+          <button
+            onClick={() => {
+              if (onLogout) onLogout();
+            }}
+            className="w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-semibold text-crit hover:bg-crit-soft transition-colors text-right cursor-pointer"
+            title="خروج از حساب و بازگشت به صفحه لاگین"
+          >
+            <div className="flex items-center gap-2">
+              <LogOut className="w-4 h-4" />
+              <span>خروج از حساب (لاگین)</span>
+            </div>
+          </button>
+
           <button
             onClick={() => {
               if (onChangeRole) onChangeRole('admin');
               onSelectStep('dash');
             }}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-crit hover:bg-crit-soft transition-colors text-right cursor-pointer"
-            title="خروج از کارتابل کارشناس و بازگشت به پیشخوان مدیر"
+            className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-xl text-[11px] text-muted hover:text-ink hover:bg-surface-2 transition-colors text-right cursor-pointer"
+            title="سوییچ به نمای سرپرست / مهندس داده"
           >
-            <div className="flex items-center gap-2">
-              <LogOut className="w-4 h-4" />
-              <span>خروج به نمای مدیر</span>
-            </div>
-            <span className="text-[10px] text-muted font-mono">admin</span>
+            <span>سوییچ به نمای مدیر</span>
+            <span className="font-mono text-[10px]">admin</span>
           </button>
         </div>
       </aside>
@@ -244,8 +256,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </div>
 
-      {/* Role Status Banner at bottom */}
-      <div className="pt-3 border-t border-line mt-3">
+      {/* Role Status Banner & Logout at bottom */}
+      <div className="pt-3 border-t border-line mt-3 space-y-2">
         <div className="p-3 rounded-xl bg-surface-2 border border-line text-xs">
           <div className="flex items-center justify-between mb-1">
             <span className="font-bold text-ink">
@@ -257,6 +269,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
             امکان مدیریت خط لوله و استخراج بسته نهایی فعال است.
           </p>
         </div>
+
+        <button
+          onClick={() => {
+            if (onLogout) onLogout();
+          }}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-crit hover:bg-crit-soft transition-colors text-right cursor-pointer"
+          title="خروج از حساب کاربری و بازگشت به صفحه لاگین"
+        >
+          <div className="flex items-center gap-2">
+            <LogOut className="w-3.5 h-3.5" />
+            <span>خروج از نشست (لاگین)</span>
+          </div>
+        </button>
       </div>
     </aside>
   );

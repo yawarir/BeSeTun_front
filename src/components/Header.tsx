@@ -26,6 +26,7 @@ interface HeaderProps {
   guideActive: boolean;
   onToggleGuide: () => void;
   onNavigate: (step: string) => void;
+  onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -39,6 +40,7 @@ export const Header: React.FC<HeaderProps> = ({
   guideActive,
   onToggleGuide,
   onNavigate,
+  onLogout,
 }) => {
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
 
@@ -210,11 +212,12 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 onClick={() => {
                   setUserMenuOpen(false);
+                  if (onLogout) onLogout();
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg text-crit hover:bg-crit-soft transition-colors text-right"
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg text-crit hover:bg-crit-soft transition-colors text-right cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span>خروج از نشست</span>
+                <span>خروج از نشست و بازگشت به لاگین</span>
               </button>
             </div>
           )}

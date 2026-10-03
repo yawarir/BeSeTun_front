@@ -5,6 +5,8 @@ import { PipelineStepper } from './components/PipelineStepper';
 import { OperatorGuideBar } from './components/OperatorGuideBar';
 import { ShortcutsModal } from './components/ShortcutsModal';
 import { LockedStepView } from './components/LockedStepView';
+import { LoginPage } from './components/LoginPage';
+import { LandingPage } from './components/LandingPage';
 
 import { Dashboard } from './components/steps/Dashboard';
 import { DataStep } from './components/steps/DataStep';
@@ -20,6 +22,8 @@ import { MainStepKey, StepStatus, UserRole, AppTheme } from './types';
 import { INITIAL_PROVIDERS, OPERATOR_WALKTHROUGH_STEPS, MAIN_STEPS } from './mockData';
 
 export default function App() {
+  // Screen state: Default is 'login' as requested by the user
+  const [currentScreen, setCurrentScreen] = useState<'login' | 'landing' | 'app'>('login');
   const [theme, setTheme] = useState<AppTheme>('light');
   const [role, setRole] = useState<UserRole>('admin');
   const [currentStep, setCurrentStep] = useState<MainStepKey>('dash');
@@ -54,7 +58,26 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Handle switching role
+  // Handle Login from LoginPage
+  const handleLogin = (selectedRole: UserRole) => {
+    setRole(selectedRole);
+    if (selectedRole === 'operator') {
+      setCurrentStep('expert');
+      setSubTabs((prev) => ({ ...prev, expert: 'work' }));
+    } else {
+      setCurrentStep('dash');
+    }
+    setCurrentScreen('app');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Handle Logout to return to LoginPage
+  const handleLogout = () => {
+    setCurrentScreen('login');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Handle switching role inside dashboard
   const handleRoleChange = (newRole: UserRole) => {
     setRole(newRole);
     if (newRole === 'operator') {
@@ -94,6 +117,42 @@ export default function App() {
     }
   };
 
+  // ========================================================
+  // 1. LOGIN SCREEN (DEFAULT ON APP LOAD)
+  // ========================================================
+  if (currentScreen === 'login') {
+    return (
+      <LoginPage
+        onLogin={handleLogin}
+        onGoLanding={() => {
+          setCurrentScreen('landing');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
+    );
+  }
+
+  // ========================================================
+  // 2. LANDING PAGE
+  // ========================================================
+  if (currentScreen === 'landing') {
+    return (
+      <LandingPage
+        onGoLogin={() => {
+          setCurrentScreen('login');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        theme={theme}
+        onToggleTheme={handleToggleTheme}
+      />
+    );
+  }
+
+  // ========================================================
+  // 3. MAIN APP WORKSPACE
+  // ========================================================
   const extFlag = isIsolated && providers.some((p) => p.active && p.isExternal);
   const isCurrentLocked = stepStatuses[currentStep] === 'locked';
 
@@ -114,6 +173,7 @@ export default function App() {
           if (!guideActive) setGuideMode('banner');
         }}
         onNavigate={(step) => handleSelectStep(step as MainStepKey)}
+        onLogout={handleLogout}
       />
 
       <div className="flex-1 flex max-w-[1600px] w-full mx-auto">
@@ -124,6 +184,7 @@ export default function App() {
           stepStatuses={stepStatuses}
           role={role}
           onChangeRole={handleRoleChange}
+          onLogout={handleLogout}
           extFlag={extFlag}
         />
 
