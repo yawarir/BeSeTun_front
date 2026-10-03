@@ -139,7 +139,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <div className="flex items-center justify-between px-3 py-1 mb-1">
             <span className="text-[10px] font-extrabold text-muted uppercase tracking-wider">
-              مراحل ۶گانه تولید دیتاست
+              مراحل ۶گانه تولید دیتاست (فاز اول)
             </span>
           </div>
 
@@ -206,7 +206,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <div className="flex items-center justify-between px-3 py-1 mb-1">
             <span className="text-[10px] font-extrabold text-muted uppercase tracking-wider">
-              فاز ۲: یادگیری مدل
+              فاز دوم: یادگیری و فاین‌تیون مدل
             </span>
           </div>
           <button

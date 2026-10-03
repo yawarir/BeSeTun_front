@@ -22,8 +22,8 @@ import { MainStepKey, StepStatus, UserRole, AppTheme } from './types';
 import { INITIAL_PROVIDERS, OPERATOR_WALKTHROUGH_STEPS, MAIN_STEPS } from './mockData';
 
 export default function App() {
-  // Screen state: Default is 'login' as requested by the user
-  const [currentScreen, setCurrentScreen] = useState<'login' | 'landing' | 'app'>('login');
+  // Screen state: Default is 'landing' as requested by the user
+  const [currentScreen, setCurrentScreen] = useState<'login' | 'landing' | 'app'>('landing');
   const [theme, setTheme] = useState<AppTheme>('light');
   const [role, setRole] = useState<UserRole>('admin');
   const [currentStep, setCurrentStep] = useState<MainStepKey>('dash');

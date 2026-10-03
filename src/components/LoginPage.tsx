@@ -17,6 +17,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { AppTheme, UserRole } from '../types';
+import { BisotunLogo } from './BisotunLogo';
 
 interface LoginPageProps {
   onLogin: (role: UserRole) => void;
@@ -46,12 +47,12 @@ export const LoginPage: React.FC<LoginPageProps> = ({
       {/* Top minimal bar */}
       <header className="px-6 py-4 flex items-center justify-between border-b border-line/60 bg-surface/50 backdrop-blur-md">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-accent text-on-accent flex items-center justify-center font-bold text-sm shadow-[0_0_12px_rgba(30,58,138,0.35)]">
-            <span className="font-mono text-base tracking-tighter">B</span>
-          </div>
-          <div>
+          <BisotunLogo size={36} />
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-black text-base text-ink tracking-tight">بیستون</span>
-            <span className="text-[10px] text-muted mr-2 font-mono">v2.4 Enterprise</span>
+            <span className="text-xs text-muted font-bold hidden sm:inline border-r border-line pr-2">
+              سکوی جامع ساخت دیتاست و فاین تیون مدل
+            </span>
           </div>
         </div>
 
@@ -87,7 +88,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-ink">ورود به سامانه بیستون</h1>
             <p className="text-xs text-muted max-w-xs mx-auto leading-relaxed">
-              سکوی تولید و اعتبارسنجی مجموعه‌داده‌های طلایی پردازش زبان طبیعی و فاین‌تیون
+              چرخه کامل ساخت مجموعه‌داده طلایی (فاز ۱) و فاین‌تیون مدل دلخواه (فاز ۲) در محیط ایزوله یا ابری
             </p>
           </div>
 
@@ -112,7 +113,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                   <span className="text-xs font-bold">مدیر پروژه</span>
                 </div>
                 <span className="text-[10px] text-muted block leading-tight">
-                  دسترسی کامل به خط لوله ۶ مرحله‌ای و تنظیمات
+                  دسترسی به خط لوله ۶ مرحله‌ای فاز ۱ و ماژول فاین‌تیون فاز ۲
                 </span>
               </button>
 

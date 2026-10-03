@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { UserRole, AppTheme } from '../types';
+import { BisotunLogo } from './BisotunLogo';
 
 interface HeaderProps {
   theme: AppTheme;
@@ -50,23 +51,18 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-4 min-w-0">
         <button
           onClick={() => onNavigate('dash')}
-          className="flex items-center gap-3 text-right focus-visible:outline-hidden group"
+          className="flex items-center gap-3 text-right focus-visible:outline-hidden group cursor-pointer"
           title="بازگشت به پیشخوان مهندسی بیستون"
         >
-          <div className="w-9 h-9 rounded-lg bg-accent text-on-accent flex items-center justify-center shadow-xs group-hover:bg-accent-2 transition-colors">
-            <svg viewBox="0 0 32 32" className="w-5 h-5" fill="none" stroke="currentColor">
-              <rect width="32" height="32" rx="8" fill="currentColor" opacity="0.1" />
-              <path d="M8 9l6 2.5L8 14zM15 9l6 2.5-6 2.5zM22.5 8H25l-1.25 8z" fill="currentColor" />
-              <path d="M8 19h16v2H8z" fill="currentColor" opacity="0.6" />
-              <path d="M10 23.5l6 2.5-6 2.5z" fill="currentColor" opacity="0.9" />
-            </svg>
-          </div>
+          <BisotunLogo size={36} />
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-lg tracking-tight text-ink">بیستون</span>
-              <span className="text-[11px] font-mono tracking-widest text-muted uppercase hidden sm:inline">BESETUN</span>
+              <span className="text-xs text-muted font-bold hidden sm:inline border-r border-line pr-2">
+                سکوی جامع ساخت دیتاست و فاین تیون مدل
+              </span>
             </div>
-            <span className="text-[11px] text-muted leading-none hidden md:block">سامانه ساخت مجموعه‌داده طلایی فاین‌تیون</span>
+            <span className="text-[11px] text-muted leading-none hidden md:block">چرخه ۲ فازی ساخت دیتاست طلایی و فاین‌تیون</span>
           </div>
         </button>
 
