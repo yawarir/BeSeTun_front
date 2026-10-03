@@ -89,7 +89,7 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
       {/* Tab Navigation */}
       <div className="flex gap-2 border-b border-line overflow-x-auto pb-px">
         {[
-          { id: 'paper', label: 'جدول ۲ مقاله علمی (ارزیابی و کاپا)' },
+          { id: 'paper', label: 'جدول ارزیابی و سنجه‌های توافق' },
           { id: 'perlabel', label: 'عملکرد تفکیکی هر برچسب' },
           { id: 'export', label: 'دانلود مجموعه‌داده و مانیفست' },
           { id: 'card', label: 'شناسنامه داده (Dataset Card)' },
@@ -108,70 +108,88 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
         ))}
       </div>
 
-      {/* TAB 1: PAPER TABLE */}
+      {/* TAB 1: BENCHMARK TABLE */}
       {activeTab === 'paper' && (
-        <div className="bg-surface border border-line rounded-xl p-6 max-w-4xl space-y-5">
+        <div className="bg-surface border border-line rounded-2xl p-6 max-w-4xl space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-4">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-accent-soft text-accent font-bold">
-                  آماده درج در مقاله
-                </span>
-                <h3 className="font-bold text-base text-ink">
-                  جدول ۲: مقایسه جامع مدل زبانی با خط پایه و توافق کارشناسان
-                </h3>
-              </div>
-              <p className="text-xs text-muted">
-                محاسبه روی ۱۰۰ متن نمونه مرجع در مقایسه با برچسب‌های نهایی پس از حل اختلاف (Adjudication)
+              <h3 className="font-bold text-base text-ink">
+                جدول ارزیابی جامع عملکرد برچسب‌زنی و ضریب توافق کارشناسان
+              </h3>
+              <p className="text-xs text-muted mt-1 leading-relaxed">
+                محاسبه روی ۱۰۰ متن نمونه مرجع در مقایسه با برچسب‌های نهایی پس از داوری و حل اختلاف (Adjudication)
               </p>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-auto">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => copyText(sampleLatexTable, 'latex')}
-                className="flex items-center gap-1.5 px-3 py-1.5 border border-line-strong rounded-lg text-xs font-semibold text-ink bg-surface hover:bg-surface-2 transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-2 border border-line rounded-xl text-xs font-semibold text-ink bg-surface hover:bg-surface-2 transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
               >
                 {copiedType === 'latex' ? <Check className="w-3.5 h-3.5 text-good" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>کپی کد LaTeX جدول ۲</span>
+                <span>کپی جدول برای مستندات و مقالات (LaTeX)</span>
               </button>
             </div>
           </div>
 
-          <div className="border border-line rounded-lg overflow-x-auto text-xs">
-            <table className="w-full text-right">
-              <thead className="bg-surface-2 border-b border-line text-ink font-bold">
+          {/* Academic / Documentation Title Suggestion Banner */}
+          <div className="p-3.5 rounded-xl bg-surface-2/60 border border-line text-[11px] text-muted flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileText className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span>عنوان پیشنهادی جهت درج در مستندات یا مقالات پژوهشی:</span>
+              <b className="text-ink font-semibold">«ارزیابی کیفیت برچسب‌زنی و مقایسه مدل زبانی با خط پایه‌ی واژه‌محور»</b>
+            </div>
+          </div>
+
+          {/* Clean, Pixel-Perfect Modern Benchmark Table */}
+          <div className="data-table-container">
+            <table className="data-table" dir="rtl">
+              <colgroup>
+                <col className="col-title-40" />
+                <col className="col-metric-15" />
+                <col className="col-metric-15" />
+                <col className="col-metric-15" />
+                <col className="col-metric-15" />
+              </colgroup>
+              <thead>
                 <tr>
-                  <th className="p-3.5">روش برچسب‌زنی</th>
-                  <th className="p-3.5 font-mono">دقت (Precision)</th>
-                  <th className="p-3.5 font-mono">بازیابی (Recall)</th>
-                  <th className="p-3.5 font-mono">F1 خرد (Micro)</th>
-                  <th className="p-3.5 font-mono font-bold text-ink">F1 کلان (Macro)</th>
+                  <th className="col-title-40">روش برچسب‌زنی</th>
+                  <th className="col-metric-15">دقت (Precision)</th>
+                  <th className="col-metric-15">بازیابی (Recall)</th>
+                  <th className="col-metric-15">خرد F1 (Micro)</th>
+                  <th className="col-metric-15">کلان F1 (Macro)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody>
                 <tr>
-                  <td className="p-3.5 text-ink font-medium">روش واژه‌محور پایه (بدون هوش مصنوعی)</td>
-                  <td className="p-3.5 font-mono">۰٫۶۹</td>
-                  <td className="p-3.5 font-mono">۰٫۵۲</td>
-                  <td className="p-3.5 font-mono">۰٫۵۸</td>
-                  <td className="p-3.5 font-mono font-bold text-muted">۰٫۵۹</td>
-                </tr>
-                <tr>
-                  <td className="p-3.5 text-ink font-medium">مدل زبانی Qwen 14B (داده نقره‌ای)</td>
-                  <td className="p-3.5 font-mono">۰٫۸۱</td>
-                  <td className="p-3.5 font-mono">۰٫۷۴</td>
-                  <td className="p-3.5 font-mono">۰٫۷۹</td>
-                  <td className="p-3.5 font-mono font-bold text-accent">۰٫۷۷</td>
-                </tr>
-                <tr className="bg-good-soft/30 font-semibold">
-                  <td className="p-3.5 text-ink font-bold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-good" />
-                    <span>مجموعه‌داده طلایی بیستون (با اصلاح کارشناس)</span>
+                  <td className="col-title-40 font-medium text-ink">
+                    روش واژه‌محور پایه (بدون هوش مصنوعی)
                   </td>
-                  <td className="p-3.5 font-mono text-good">۰٫۸۹</td>
-                  <td className="p-3.5 font-mono text-good">۰٫۸۵</td>
-                  <td className="p-3.5 font-mono text-good">۰٫۸۸</td>
-                  <td className="p-3.5 font-mono font-bold text-good text-sm">۰٫۸۷</td>
+                  <td className="col-metric-15 text-muted font-bold">۰٫۶۹</td>
+                  <td className="col-metric-15 text-muted font-bold">۰٫۵۲</td>
+                  <td className="col-metric-15 text-muted font-bold">۰٫۵۸</td>
+                  <td className="col-metric-15 text-muted font-extrabold">۰٫۵۹</td>
+                </tr>
+                <tr>
+                  <td className="col-title-40 font-medium text-ink">
+                    مدل زبانی Qwen 14B (داده نقره‌ای)
+                  </td>
+                  <td className="col-metric-15 text-accent font-bold">۰٫۸۱</td>
+                  <td className="col-metric-15 text-accent font-bold">۰٫۷۴</td>
+                  <td className="col-metric-15 text-accent font-bold">۰٫۷۹</td>
+                  <td className="col-metric-15 text-accent font-extrabold">۰٫۷۷</td>
+                </tr>
+                <tr className="row-golden">
+                  <td className="col-title-40 text-ink font-bold">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-good shrink-0" />
+                      <span>مجموعه‌داده طلایی بیستون (با داوری کارشناس)</span>
+                    </div>
+                  </td>
+                  <td className="col-metric-15 text-good font-extrabold">۰٫۸۹</td>
+                  <td className="col-metric-15 text-good font-extrabold">۰٫۸۵</td>
+                  <td className="col-metric-15 text-good font-extrabold">۰٫۸۸</td>
+                  <td className="col-metric-15 text-good font-extrabold text-sm">۰٫۸۷</td>
                 </tr>
               </tbody>
             </table>
@@ -208,18 +226,25 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
             بررسی نقاط قوت و ضعف مدل در شناسایی برچسب‌های مختلف
           </p>
 
-          <div className="border border-line rounded-lg overflow-x-auto text-xs">
-            <table className="w-full text-right">
-              <thead className="bg-surface-2 border-b border-line text-muted">
+          <div className="data-table-container">
+            <table className="data-table" dir="rtl">
+              <colgroup>
+                <col className="col-title-36" />
+                <col className="col-metric-16" />
+                <col className="col-metric-16" />
+                <col className="col-metric-16" />
+                <col className="col-metric-16" />
+              </colgroup>
+              <thead>
                 <tr>
-                  <th className="p-3">عنوان برچسب</th>
-                  <th className="p-3 font-mono">دقت (Precision)</th>
-                  <th className="p-3 font-mono">بازیابی (Recall)</th>
-                  <th className="p-3 font-mono font-bold text-ink">امتیاز F1 مدل</th>
-                  <th className="p-3 font-mono text-muted">F1 واژه‌محور</th>
+                  <th className="col-title-36">عنوان برچسب در تاکسونومی</th>
+                  <th className="col-metric-16">دقت (Precision)</th>
+                  <th className="col-metric-16">بازیابی (Recall)</th>
+                  <th className="col-metric-16 text-accent">امتیاز F1 مدل</th>
+                  <th className="col-metric-16 text-muted">F1 واژه‌محور پایه</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line">
+              <tbody>
                 {[
                   { name: 'کندی پاسخ‌گویی', p: '۰٫۸۸', r: '۰٫۸۵', f1: '۰٫۸۶', base: '۰٫۷۱' },
                   { name: 'هزینه‌ی بالا', p: '۰٫۹۲', r: '۰٫۸۸', f1: '۰٫۹۰', base: '۰٫۷۸' },
@@ -230,12 +255,12 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
                   { name: 'اطلاعات ناکافی', p: '۰٫۷۸', r: '۰٫۷۰', f1: '۰٫۷۴', base: '۰٫۵۱' },
                   { name: 'دسترسی دشوار', p: '۰٫۸۱', r: '۰٫۷۵', f1: '۰٫۷۸', base: '۰٫۵۸' },
                 ].map((row, idx) => (
-                  <tr key={idx} className="hover:bg-surface-2">
-                    <td className="p-3 font-semibold text-ink">{row.name}</td>
-                    <td className="p-3 font-mono">{row.p}</td>
-                    <td className="p-3 font-mono">{row.r}</td>
-                    <td className="p-3 font-mono font-bold text-accent text-sm">{row.f1}</td>
-                    <td className="p-3 font-mono text-muted">{row.base}</td>
+                  <tr key={idx}>
+                    <td className="col-title-36 font-semibold text-ink">{row.name}</td>
+                    <td className="col-metric-16 text-muted font-bold">{row.p}</td>
+                    <td className="col-metric-16 text-muted font-bold">{row.r}</td>
+                    <td className="col-metric-16 text-accent font-extrabold">{row.f1}</td>
+                    <td className="col-metric-16 text-muted font-bold">{row.base}</td>
                   </tr>
                 ))}
               </tbody>

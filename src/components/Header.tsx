@@ -46,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-line px-4 lg:px-6 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-surface border-b border-line px-4 lg:px-6 h-16 flex items-center justify-between gap-4 shadow-2xs">
       {/* Brand & Project Info */}
       <div className="flex items-center gap-4 min-w-0">
         <button

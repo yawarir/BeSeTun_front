@@ -67,6 +67,13 @@ export interface CandidateLabel {
   selected: boolean;
 }
 
+export interface FewShotPromptExample {
+  id: string;
+  text: string;
+  labels: string[];
+  rationale: string;
+}
+
 export interface ModelProvider {
   id: string;
   name: string;

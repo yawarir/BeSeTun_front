@@ -18,7 +18,7 @@ import { ResultsStep } from './components/steps/ResultsStep';
 import { FineTuneStep } from './components/steps/FineTuneStep';
 import { SettingsStep } from './components/steps/SettingsStep';
 
-import { MainStepKey, StepStatus, UserRole, AppTheme } from './types';
+import { MainStepKey, StepStatus, UserRole, AppTheme, ModelProvider, LabelItem } from './types';
 import { INITIAL_PROVIDERS, OPERATOR_WALKTHROUGH_STEPS, MAIN_STEPS } from './mockData';
 
 export default function App() {
@@ -28,26 +28,30 @@ export default function App() {
   const [role, setRole] = useState<UserRole>('admin');
   const [currentStep, setCurrentStep] = useState<MainStepKey>('dash');
   const [subTabs, setSubTabs] = useState<Record<string, string>>({
-    data: 'clean',
+    data: 'import',
     labels: 'extract',
     model: 'runs',
-    expert: 'work',
+    expert: 'progress',
     keyword: 'dict',
     results: 'paper',
     settings: 'mode',
   });
 
+  // Clean empty initial state: Steps locked until dataset is loaded
+  const [isDatasetLoaded, setIsDatasetLoaded] = useState<boolean>(false);
   const [stepStatuses, setStepStatuses] = useState<Record<string, StepStatus>>({
-    data: 'done',
-    labels: 'done',
-    model: 'active',
-    expert: 'ready',
-    keyword: 'ready',
-    results: 'ready',
+    data: 'active',
+    labels: 'locked',
+    model: 'locked',
+    expert: 'locked',
+    keyword: 'locked',
+    results: 'locked',
   });
 
   const [isIsolated, setIsIsolated] = useState<boolean>(true);
   const [providers, setProviders] = useState(INITIAL_PROVIDERS);
+  const [extractedLabels, setExtractedLabels] = useState<LabelItem[]>([]);
+  const [isModelRunCompleted, setIsModelRunCompleted] = useState<boolean>(false);
   const [guideActive, setGuideActive] = useState<boolean>(false);
   const [guideMode, setGuideMode] = useState<'banner' | 'floating' | 'minimized'>('banner');
   const [currentGuideIndex, setCurrentGuideIndex] = useState<number>(0);
@@ -57,6 +61,34 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  // Dataset Loaded Handler
+  const handleDatasetLoaded = (_count: number) => {
+    setIsDatasetLoaded(true);
+    setStepStatuses({
+      data: 'done',
+      labels: 'ready',
+      model: 'ready',
+      expert: 'ready',
+      keyword: 'ready',
+      results: 'ready',
+    });
+  };
+
+  // Dataset Cleared Handler
+  const handleDatasetCleared = () => {
+    setIsDatasetLoaded(false);
+    setExtractedLabels([]);
+    setIsModelRunCompleted(false);
+    setStepStatuses({
+      data: 'active',
+      labels: 'locked',
+      model: 'locked',
+      expert: 'locked',
+      keyword: 'locked',
+      results: 'locked',
+    });
+  };
 
   // Handle Login from LoginPage
   const handleLogin = (selectedRole: UserRole) => {
@@ -83,6 +115,8 @@ export default function App() {
     if (newRole === 'operator') {
       setCurrentStep('expert');
       setSubTabs((prev) => ({ ...prev, expert: 'work' }));
+    } else {
+      setSubTabs((prev) => ({ ...prev, expert: 'progress' }));
     }
   };
 
@@ -106,6 +140,10 @@ export default function App() {
     setProviders((prev) =>
       prev.map((p) => (p.id === id ? { ...p, active: !p.active } : p))
     );
+  };
+
+  const handleAddProvider = (newProv: ModelProvider) => {
+    setProviders((prev) => [...prev, newProv]);
   };
 
   const handleGuideNavigate = (index: number) => {
@@ -242,8 +280,11 @@ export default function App() {
 
               {currentStep === 'data' && (
                 <DataStep
-                  activeTab={subTabs.data || 'clean'}
+                  activeTab={subTabs.data || 'import'}
                   onChangeTab={handleSubTabChange}
+                  onDatasetLoaded={handleDatasetLoaded}
+                  onDatasetCleared={handleDatasetCleared}
+                  isInitialLoaded={isDatasetLoaded}
                 />
               )}
 
@@ -252,6 +293,9 @@ export default function App() {
                   activeTab={subTabs.labels || 'extract'}
                   onChangeTab={handleSubTabChange}
                   onOpenSettings={() => handleSelectStep('settings', 'providers')}
+                  labels={extractedLabels}
+                  onLabelsChange={setExtractedLabels}
+                  isDatasetLoaded={isDatasetLoaded}
                 />
               )}
 
@@ -259,8 +303,11 @@ export default function App() {
                 <ModelStep
                   activeTab={subTabs.model || 'runs'}
                   onChangeTab={handleSubTabChange}
-                  extFlag={extFlag}
-                  onOpenSettings={() => handleSelectStep('settings', 'providers')}
+                  providers={providers}
+                  labels={extractedLabels}
+                  onGoToLabels={() => handleSelectStep('labels', 'extract')}
+                  isRunCompleted={isModelRunCompleted}
+                  onRunComplete={() => setIsModelRunCompleted(true)}
                 />
               )}
 
@@ -273,7 +320,12 @@ export default function App() {
                 />
               )}
 
-              {currentStep === 'keyword' && <KeywordStep />}
+              {currentStep === 'keyword' && (
+                <KeywordStep
+                  labels={extractedLabels}
+                  onGoToLabels={() => handleSelectStep('labels', 'extract')}
+                />
+              )}
 
               {currentStep === 'results' && (
                 <ResultsStep
@@ -293,6 +345,7 @@ export default function App() {
                   onToggleIsolated={setIsIsolated}
                   providers={providers}
                   onToggleProvider={handleToggleProvider}
+                  onAddProvider={handleAddProvider}
                 />
               )}
             </>

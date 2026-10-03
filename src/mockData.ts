@@ -47,7 +47,7 @@ export const MAIN_STEPS: StepDefinition[] = [
     stepNumber: 5,
     title: 'برچسب‌زنی واژه‌محور',
     shortDesc: 'پیاده‌سازی روش پایه‌ی بدون هوش مصنوعی جهت اعتبارسنجی مقالاتی',
-    detailedDesc: 'یک نگاشت کلیدواژه‌ای شفاف پیاده می‌شود تا در جدول مقایسه‌ای مقاله اثبات شود مدل زبانی چقدر برتری آماری ایجاد می‌کند.',
+    detailedDesc: 'یک نگاشت کلیدواژه‌ای شفاف پیاده می‌شود تا در جدول مقایسه‌ای سنجیده شود که مدل زبانی چقدر بهبود آماری ایجاد می‌کند.',
     defaultTab: 'dict',
   },
   {
@@ -237,14 +237,36 @@ export const SAMPLE_TEXTS: RawTextRecord[] = [
   },
   {
     id: 1008,
-    text: 'درخواست وام اشتغال در تاریخ ۱۵ اردیبهشت ثبت شده ولی تا این تاریخ هیچ پاسخی در کارتابل درج نشده است. هیچ دلیلی هم برای رد یا تایید ارائه نداده‌اند.',
+    text: 'در محاسبه متراژ پایان‌کار اختلاف فاحشی با نقشه مصوب شهرداری وجود دارد و مسئول فنی حاضر به بررسی نیست.',
     sourceFile: 'complaints_1403.csv',
-    status: 'sampled_ref',
-    modelSuggestions: [0], // کندی پاسخ‌گویی
-    modelRunB: [0, 6],
+    status: 'sampled_rev',
+    modelSuggestions: [1, 2], // هزینه‌ی بالا، کیفیت پایین
+    modelRunB: [1, 2],
+    isSuspicious: false,
+  },
+  {
+    id: 1009,
+    text: 'روشنایی معابر کوچه لاله دهم دو ماه است قطع است و پیگیری‌های مکرر اهالی به شماره ۱۳۷ پاسخی نداشته است.',
+    sourceFile: 'complaints_1402.xlsx',
+    status: 'sampled_rev',
+    modelSuggestions: [0, 2], // کندی پاسخ‌گویی، کیفیت پایین
+    modelRunB: [0],
     isSuspicious: true,
   },
+  {
+    id: 1010,
+    text: 'درگاه پرداخت هنگام کسر کارمزد نوسازی پیام ناموفق داد ولی مبلغ از حسابم کسر شد و فیش صادر نشد.',
+    sourceFile: 'complaints_1403.csv',
+    status: 'sampled_rev',
+    modelSuggestions: [5], // مشکل فنی
+    modelRunB: [5],
+    isSuspicious: false,
+  },
 ];
+
+// Disjoint Reference and Review Sets (Zero Overlap as requested)
+export const SAMPLE_REF_TEXTS = SAMPLE_TEXTS.filter((t) => t.status === 'sampled_ref');
+export const SAMPLE_REV_TEXTS = SAMPLE_TEXTS.filter((t) => t.status === 'sampled_rev');
 
 export const INITIAL_ADJUDICATION_ITEMS: AdjudicationItem[] = [
   {
@@ -325,9 +347,9 @@ export const INITIAL_PROVIDERS: ModelProvider[] = [
 export const INITIAL_EXPERTS: AnnotatorProgress[] = [
   {
     id: 'expert1',
-    name: 'مهندس حسینی (کارشناس ارشد)',
+    name: 'کارشناس شماره ۱ (برچسب‌زن ارشد)',
     username: 'expert1',
-    initial: 'ح',
+    initial: '۱',
     refCompleted: 78,
     refTotal: 100,
     revCompleted: 45,
@@ -336,9 +358,9 @@ export const INITIAL_EXPERTS: AnnotatorProgress[] = [
   },
   {
     id: 'expert2',
-    name: 'دکتر مرادی (متخصص زبان‌شناسی داده)',
+    name: 'کارشناس شماره ۲ (تحلیل‌گر داده)',
     username: 'expert2',
-    initial: 'م',
+    initial: '۲',
     refCompleted: 92,
     refTotal: 100,
     revCompleted: 0,

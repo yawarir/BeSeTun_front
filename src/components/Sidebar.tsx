@@ -176,7 +176,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     >
                       {step.stepNumber}
                     </span>
-                    <span className="truncate">{step.title}</span>
+                    <span className="truncate">
+                      {step.key === 'expert'
+                        ? role === 'admin'
+                          ? 'داوری و پیشرفت کارشناسان'
+                          : 'میز کار برچسب‌زنی'
+                        : step.title}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-1 shrink-0">

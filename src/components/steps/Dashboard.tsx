@@ -242,7 +242,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="space-y-4">
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="font-semibold text-ink">کارشناس ۱ (مهندس حسینی)</span>
+                <span className="font-semibold text-ink">کارشناس شماره ۱ (برچسب‌زن ارشد)</span>
                 <span className="text-muted font-mono font-bold">۷۸ از ۱۰۰ متن</span>
               </div>
               <div className="h-2 rounded-full bg-track overflow-hidden">
@@ -252,7 +252,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs">
-                <span className="font-semibold text-ink">کارشناس ۲ (دکتر مرادی)</span>
+                <span className="font-semibold text-ink">کارشناس شماره ۲ (تحلیل‌گر داده)</span>
                 <span className="text-muted font-mono font-bold">۹۲ از ۱۰۰ متن</span>
               </div>
               <div className="h-2 rounded-full bg-track overflow-hidden">

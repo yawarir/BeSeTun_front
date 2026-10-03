@@ -80,7 +80,7 @@ export const FineTuneStep: React.FC = () => {
 
       {/* 1. Dataset Condition Selection */}
       <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
-        <h4 className="font-bold text-sm text-ink">۱. انتخاب نوع داده برای اثبات تأثیر بازبینی انسانی در مقاله</h4>
+        <h4 className="font-bold text-sm text-ink">۱. انتخاب نوع داده جهت سنجش تأثیر بازبینی انسانی بر مدل</h4>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
@@ -96,8 +96,8 @@ export const FineTuneStep: React.FC = () => {
             },
             {
               id: 'both',
-              title: 'هر دو (مقایسه کامل برای مقاله)',
-              desc: 'اثبات افزایش چشمگیر F1 مدل در صورت دخالت کارشناس انسانی',
+              title: 'هر دو (مقایسه جامع سنجه‌ها)',
+              desc: 'سنجش و ارزیابی میزان بهبود F1 مدل در صورت نظارت کارشناس انسانی',
             },
           ].map((cond) => (
             <button

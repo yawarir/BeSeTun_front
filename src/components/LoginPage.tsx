@@ -32,7 +32,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
   theme,
   onToggleTheme,
 }) => {
-  const [username, setUsername] = useState('admin@besetun.gov.ir');
+  const [username, setUsername] = useState('admin@besetun.local');
   const [password, setPassword] = useState('••••••••••••');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>('admin');
@@ -100,7 +100,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 type="button"
                 onClick={() => {
                   setSelectedRole('admin');
-                  setUsername('admin@besetun.gov.ir');
+                  setUsername('admin@besetun.local');
                 }}
                 className={`p-3 rounded-xl border text-right transition-all cursor-pointer ${
                   selectedRole === 'admin'
@@ -121,7 +121,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({
                 type="button"
                 onClick={() => {
                   setSelectedRole('operator');
-                  setUsername('annotator1@besetun.gov.ir');
+                  setUsername('annotator1@besetun.local');
                 }}
                 className={`p-3 rounded-xl border text-right transition-all cursor-pointer ${
                   selectedRole === 'operator'
