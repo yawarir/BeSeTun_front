@@ -67,8 +67,8 @@ const PHASE_TWO_STEPS = [
   {
     stepNumber: 3,
     title: 'تنظیم پارامترهای آموزش و فاین‌تیونینگ (Hyperparameters)',
-    desc: 'پیکربندی هوشمند نرخ یادگیری (Learning Rate)، تعداد دوره‌ها (Epochs)، متدهای LoRA/QLoRA و بهینه‌سازهای حافظه GPU.',
-    highlight: 'LoRA / QLoRA بهینه',
+    desc: 'پیکربندی هوشمند نرخ یادگیری (Learning Rate)، تعداد دوره‌ها (Epochs) و بهینه‌سازهای حافظه برای مدل‌های طبقه‌بندی متنی (مانند ParsBERT و FaBERT).',
+    highlight: 'تنظیم دقیق ParsBERT و FaBERT',
   },
   {
     stepNumber: 4,
@@ -79,7 +79,7 @@ const PHASE_TWO_STEPS = [
   {
     stepNumber: 5,
     title: 'خروجی مدل اختصاصی و در صورت نیاز هاست و ارائه API',
-    desc: 'دریافت وزن‌های مدل فاین‌تیون‌شده (Safetensors / GGUF) و امکان هاستینگ مستقیم درون سامانه با ارائه وب‌سرویس API امن.',
+    desc: 'دریافت وزن‌های مدل فاین‌تیون‌شده (Safetensors / PyTorch) و امکان هاستینگ مستقیم درون سامانه با ارائه وب‌سرویس API امن.',
     highlight: 'مدل آماده + وب‌سرویس API',
   },
 ];
@@ -221,7 +221,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </h1>
 
           <p className="text-sm md:text-base text-muted max-w-3xl mx-auto leading-relaxed">
-            بیستون یک راهکار جامع دو فازی است؛ پوشش هم‌زمان <b>فاز اول (تولید و غنی‌سازی مجموعه‌داده استاندارد طلایی)</b> و بلافاصله <b>فاز دوم (آموزش و تنظیم دقیق مدل هوش مصنوعی دلخواه)</b>. قابل استقرار به‌صورت <b>کلون کامل در شبکه ایزوله سازمانی</b> بدون خروج حتی یک بایت داده، و همچنین ارائه به‌صورت <b>نسخه ابری آنلاین</b> با دسترسی به مدل‌های پیشرفته جهانی برای کلیه کاربردهای عمومی.
+            بیستون یک راهکار جامع دو فازی است؛ پوشش هم‌زمان <b>فاز اول (تولید و غنی‌سازی مجموعه‌داده استاندارد طلایی)</b> و بلافاصله <b>فاز دوم (آموزش و تنظیم دقیق مدل هوش مصنوعی دلخواه)</b>. قابل استقرار به‌صورت <b>کلون کامل در شبکه ایزوله سازمانی (On-Premises / Air-Gapped)</b> بدون نیاز به اینترنت، و همچنین ارائه به‌صورت <b>نسخه ابری آنلاین</b> با دسترسی به مدل‌های پیشرفته برای کلیه کاربردهای عمومی.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
@@ -336,7 +336,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
 
               <p className="text-xs text-muted leading-relaxed">
-                تغذیه مستقیم دیتاست طلایی فاز اول به مدل زبانی دلخواه شما (مانند ParsBERT، Qwen2.5، Llama-3، Mistral یا مدل اختصاصی) و اجرای فرآیند آموزش با متدهای LoRA/QLoRA، پایش پارامترها و استخراج وزن‌های نهایی مدل.
+                تغذیه مستقیم دیتاست طلایی فاز اول به مدل‌های طبقه‌بندی زبانی (مانند ParsBERT و FaBERT) جهت آموزش دسته‌بند متن، پایش زنده تابع زیان (Loss) و استخراج فایل وزن‌های نهایی مدل.
               </p>
 
               <div className="space-y-2 pt-2 text-xs">
@@ -350,7 +350,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
                 <div className="flex items-center gap-2 text-ink">
                   <CheckCircle2 className="w-4 h-4 text-good shrink-0" />
-                  <span>خروجی فایل Safetensors/GGUF و امکان ارائه API هاست‌شده اختصاصی</span>
+                  <span>خروجی فایل Safetensors/PyTorch و امکان ارائه API هاست‌شده اختصاصی</span>
                 </div>
               </div>
 
@@ -486,7 +486,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </h3>
 
               <p className="text-xs text-muted leading-relaxed">
-                این نسخه به‌صورت یک بسته کامل در محیط دیتاسنتر داخلی سازمان یا نهادهای دولتی، بانکی و امنیتی کلون می‌شود. کل چرخه ساخت دیتاست و آموزش مدل روی سخت‌افزار داخلی و با درگاه‌های محلی (LM Studio، Ollama یا vLLM) اجرا شده و <b>حتی یک بایت داده از مرز شبکه سازمان خارج نمی‌شود</b>.
+                این نسخه به‌صورت یک بسته کامل در محیط دیتاسنتر داخلی سازمان یا نهادهای دولتی، بانکی و امنیتی کلون می‌شود. کل چرخه ساخت دیتاست و آموزش مدل روی سخت‌افزار داخلی و با درگاه‌های محلی (LM Studio، Ollama یا vLLM) اجرا شده و کلیه پردازش‌ها و فرآیندهای برچسب‌زنی و آموزش روی سرورهای داخلی سازمان اجرا می‌گردد.
               </p>
 
               <div className="space-y-2 text-xs">

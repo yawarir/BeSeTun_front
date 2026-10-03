@@ -12,6 +12,8 @@ import {
   UserCheck,
   Check,
   Sparkles,
+  Menu,
+  X,
 } from 'lucide-react';
 import { UserRole, AppTheme } from '../types';
 import { BisotunLogo } from './BisotunLogo';
@@ -28,6 +30,8 @@ interface HeaderProps {
   onToggleGuide: () => void;
   onNavigate: (step: string) => void;
   onLogout?: () => void;
+  isMobileMenuOpen?: boolean;
+  onToggleMobileMenu?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -42,13 +46,25 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleGuide,
   onNavigate,
   onLogout,
+  isMobileMenuOpen = false,
+  onToggleMobileMenu,
 }) => {
   const [userMenuOpen, setUserMenuOpen] = React.useState(false);
 
   return (
     <header className="sticky top-0 z-40 bg-surface border-b border-line px-4 lg:px-6 h-16 flex items-center justify-between gap-4 shadow-2xs">
       {/* Brand & Project Info */}
-      <div className="flex items-center gap-4 min-w-0">
+      <div className="flex items-center gap-3 min-w-0">
+        {onToggleMobileMenu && (
+          <button
+            onClick={onToggleMobileMenu}
+            className="lg:hidden w-9 h-9 rounded-xl border border-line bg-surface-2 flex items-center justify-center text-ink hover:text-accent transition-colors shrink-0 cursor-pointer"
+            title={isMobileMenuOpen ? 'بستن منو' : 'باز کردن منوی مراحل'}
+            aria-label="منوی سامانه"
+          >
+            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        )}
         <button
           onClick={() => onNavigate('dash')}
           className="flex items-center gap-3 text-right focus-visible:outline-hidden group cursor-pointer"

@@ -106,13 +106,29 @@ export const DataStep: React.FC<DataStepProps> = ({
 
   const isDataLoaded = records.length > 0;
 
-  // Masking function for live sandbox
+  // Masking function for live sandbox:
+  // Strict order with digit boundary checks:
+  // 1. Bank card (16 digits with optional spaces or dashes, strict boundary)
+  // 2. IBAN (IR + 24 digits)
+  // 3. Mobile phone (09/۰۹/+98/۰۰۹۸ followed by 9 digits with optional spaces/dashes, strict boundary)
+  // 4. Landlines (e.g. 021-xxxxxxxx)
+  // 5. National ID (strictly 10 digits with strict negative lookarounds)
+  // 6. Names and branches
   const maskText = (txt: string) => {
     return txt
-      .replace(/09\d{9}|۰۹\d{9}/g, '[شماره_تلفن]')
-      .replace(/\d{10}|[۰-۹]{10}/g, '[کد_ملی]')
-      .replace(/\d{16}|[۰-۹]{16}/g, '[کارت_بانکی]')
-      .replace(/آقای\s+[\u0600-\u06FF]+(\s+[\u0600-\u06FF]+)?|خانم\s+[\u0600-\u06FF]+(\s+[\u0600-\u06FF]+)?/g, '[نام_شخص]')
+      // 1. Bank Card (16 digits with optional spaces or dashes, strict boundary)
+      .replace(/(?<![\d۰-۹])(?:[\d۰-۹][\s\-_–—]*){16}(?![\d۰-۹])/g, '[شماره_کارت]')
+      // 2. IBAN
+      .replace(/(?<![A-Za-z\d۰-۹])(?:IR|ir|IR-|ir-)[\s\-_–—]?(?:[\d۰-۹][\s\-_–—]*){24}(?![\d۰-۹])/g, '[شماره_شبا]')
+      // 3. Mobile Phone (09/۰۹/+98/۰۰۹۸ followed by 9 digits with optional spaces/dashes, strict boundary)
+      .replace(/(?<![\d۰-۹])(?:(?:\+98|0098|\+۹۸|۰۰۹۸|0|۰)?[\s\-_–—]*[9۹])(?:[\s\-_–—]*[\d۰-۹]){9}(?![\d۰-۹])/g, '[شماره_تلفن]')
+      // 4. Landlines (e.g. 021-xxxxxxxx)
+      .replace(/(?<![\d۰-۹])(?:0|۰)[1-8۱-۸](?:[\s\-_–—]*[\d۰-۹]){8,9}(?![\d۰-۹])/g, '[شماره_تلفن]')
+      // 5. National Code (strictly 10 digits with strict negative lookarounds)
+      .replace(/(?<![\d۰-۹])(?:[\d۰-۹][\s\-_–—]*){10}(?![\d۰-۹])/g, '[کد_ملی]')
+      // 6. Names
+      .replace(/(?:جناب آقای|آقای|سرکار خانم|خانم)\s+[\u0600-\u06FF]+(?:\s+[\u0600-\u06FF]+)?/g, '[نام_شخص]')
+      // 7. Branches
       .replace(/شعبه\s+[\u0600-\u06FF]+/g, '[شعبه_سازمان]');
   };
 
@@ -387,11 +403,11 @@ export const DataStep: React.FC<DataStepProps> = ({
                   </div>
                   <div>
                     <h3 className="font-bold text-sm text-ink">مجموعه‌داده آزمایشی آماده بیستون</h3>
-                    <span className="text-[11px] text-muted">نمونه شکایات شهروندی ۱۴۰۳ — ۵۰ رکورد استاندارد</span>
+                    <span className="text-[11px] text-muted">داده‌های ساختگی (شبیه‌سازی‌شده) — ۵۰ متن ساختگی</span>
                   </div>
                 </div>
                 <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-surface border border-line text-accent">
-                  JSON
+                  ساختگی (Synthetic)
                 </span>
               </div>
 
@@ -400,8 +416,8 @@ export const DataStep: React.FC<DataStepProps> = ({
               </p>
 
               <div className="grid grid-cols-2 gap-2 text-[11px] text-ink-2 bg-surface p-3 rounded-xl border border-line">
-                <div>• تعداد رکورد: <b>۵۰ متن واقعی</b></div>
-                <div>• فرمت خروجی: <b>JSON ساخت‌یافته</b></div>
+                <div>• تعداد رکورد: <b>۴۲ متن ساختگی پس از پالایش</b></div>
+                <div>• ماهیت داده‌ها: <b>کاملاً ساختگی (Synthetic)</b></div>
                 <div>• ساختار فیلدها: <b>id, text, source</b></div>
                 <div>• گمنام‌سازی: <b>آماده پالایش</b></div>
               </div>
@@ -675,31 +691,45 @@ export const DataStep: React.FC<DataStepProps> = ({
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl border border-line bg-surface-2 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <b className="text-xs text-ink">نمونه مرجع (برچسب‌زنی کور)</b>
-                    <span className="font-mono font-bold text-accent text-xs">
-                      {Math.min(finalReadyCount, 25).toLocaleString('fa-IR')} متن
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-muted">
-                    به دو کارشناس ۱ و ۲ به صورت مستقل و بدون مشاهده نظر یکدیگر جهت داوری کور تخصیص می‌یابد.
-                  </p>
-                </div>
+              {(() => {
+                const halfSampleCount = Math.floor(finalReadyCount / 2);
+                const refSampleCount = halfSampleCount;
+                const revSampleCount = finalReadyCount - refSampleCount;
+                return (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="p-4 rounded-xl border border-line bg-surface-2 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <b className="text-xs text-ink">نمونه مرجع (برچسب‌زنی کور)</b>
+                          <span className="font-mono font-bold text-accent text-xs">
+                            {refSampleCount.toLocaleString('fa-IR')} متن
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted">
+                          به دو کارشناس ۱ و ۲ به صورت مستقل و بدون مشاهده نظر یکدیگر جهت داوری کور تخصیص می‌یابد.
+                        </p>
+                      </div>
 
-                <div className="p-4 rounded-xl border border-line bg-surface-2 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <b className="text-xs text-ink">نمونه بازبینی (پیشنهاد مدل)</b>
-                    <span className="font-mono font-bold text-accent text-xs">
-                      {Math.min(finalReadyCount, 25).toLocaleString('fa-IR')} متن
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-muted">
-                    توسط مدل زبانی برچسب‌گذاری شده و کارشناسان صرفاً برچسب‌های خروجی را تایید یا اصلاح می‌کنند.
-                  </p>
-                </div>
-              </div>
+                      <div className="p-4 rounded-xl border border-line bg-surface-2 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <b className="text-xs text-ink">نمونه بازبینی (پیشنهاد مدل)</b>
+                          <span className="font-mono font-bold text-accent text-xs">
+                            {revSampleCount.toLocaleString('fa-IR')} متن
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted">
+                          توسط مدل زبانی برچسب‌گذاری شده و کارشناسان صرفاً برچسب‌های خروجی را تایید یا اصلاح می‌کنند.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-accent-soft/40 border border-accent/20 text-xs text-accent flex items-center justify-between">
+                      <span>مجموع نمونه‌های انتخابی مجزا:</span>
+                      <b className="font-mono">{(refSampleCount + revSampleCount).toLocaleString('fa-IR')} از {finalReadyCount.toLocaleString('fa-IR')} متن کل (تضمین عدم هم‌پوشانی)</b>
+                    </div>
+                  </>
+                );
+              })()}
 
               <div className="p-4 border border-line rounded-xl bg-surface space-y-3">
                 <label className="text-xs font-semibold text-ink block">

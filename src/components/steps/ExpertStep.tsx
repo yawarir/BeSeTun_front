@@ -41,8 +41,10 @@ export const ExpertStep: React.FC<ExpertStepProps> = ({
   onOpenShortcuts,
   role = 'operator',
 }) => {
-  // If role is admin, work station is hidden and default is progress/adj
-  const effectiveTab = role === 'admin' && activeTab === 'work' ? 'progress' : activeTab;
+  // Strict Double-Blind Protocol:
+  // Operator ONLY has access to 'work' station! Adjudication and other experts' answers are strictly hidden.
+  // Admin ONLY has access to 'progress' and 'adj' (adjudication).
+  const effectiveTab = role === 'operator' ? 'work' : (activeTab === 'work' ? 'progress' : activeTab);
 
   // Annotation Station State
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -554,7 +556,7 @@ export const ExpertStep: React.FC<ExpertStepProps> = ({
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xl font-black font-mono text-good">κ = ۰.۷۸</span>
+              <span className="text-xl font-black font-mono text-good">κ = ۰٫۷۸</span>
               <span className="text-[11px] px-2 py-0.5 rounded bg-good-soft text-good font-semibold">
                 توافق قابل‌توجه (Substantial)
               </span>

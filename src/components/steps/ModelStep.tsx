@@ -143,7 +143,7 @@ export const ModelStep: React.FC<ModelStepProps> = ({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">دمای تولید (Temperature):</span>
-                  <span className="font-mono text-ink">۰.۰ (قطعی / Greedy Decoding)</span>
+                  <span className="font-mono text-ink">۰٫۰ (قطعی / Greedy Decoding)</span>
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export const ModelStep: React.FC<ModelStepProps> = ({
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">دمای تولید (Temperature):</span>
-                  <span className="font-mono text-ink">۰.۰ (قطعی / Greedy Decoding)</span>
+                  <span className="font-mono text-ink">۰٫۰ (قطعی / Greedy Decoding)</span>
                 </div>
               </div>
             </div>

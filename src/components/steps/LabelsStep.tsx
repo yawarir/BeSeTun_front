@@ -34,6 +34,7 @@ interface LabelsStepProps {
   labels: LabelItem[];
   onLabelsChange: (labels: LabelItem[]) => void;
   isDatasetLoaded: boolean;
+  datasetCount?: number;
 }
 
 export const LabelsStep: React.FC<LabelsStepProps> = ({
@@ -43,11 +44,40 @@ export const LabelsStep: React.FC<LabelsStepProps> = ({
   labels,
   onLabelsChange,
   isDatasetLoaded,
+  datasetCount = 42,
 }) => {
   const [jobState, setJobState] = useState<'idle' | 'run' | 'err' | 'done'>('idle');
   const [jobProgress, setJobProgress] = useState(0);
   const [simulateError, setSimulateError] = useState(false);
-  const [candidates, setCandidates] = useState<CandidateLabel[]>(INITIAL_CANDIDATE_LABELS);
+  const [selectedExtractionModel, setSelectedExtractionModel] = useState('qwen2.5-14b-instruct');
+  const [extractionInstruction, setExtractionInstruction] = useState(
+    'متن‌های شکایات شهروندی را تحلیل کرده و دلایل پرتکرار و ساختارمند نارضایتی را استخراج و دسته‌بندی کنید.'
+  );
+
+  // Dynamically proportion candidate frequencies so they never exceed datasetCount (e.g. 42)
+  const [candidates, setCandidates] = useState<CandidateLabel[]>(() => {
+    const total = datasetCount || 42;
+    return [
+      { id: 0, name: 'کندی پاسخ‌گویی', frequency: Math.min(total, Math.round(total * 0.43)), selected: true },
+      { id: 1, name: 'هزینه‌ی بالا', frequency: Math.min(total, Math.round(total * 0.33)), selected: true },
+      { id: 2, name: 'کیفیت پایین خدمت', frequency: Math.min(total, Math.round(total * 0.26)), selected: true },
+      { id: 3, name: 'رفتار نامناسب پرسنل', frequency: Math.min(total, Math.round(total * 0.21)), selected: true },
+      { id: 4, name: 'پیچیدگی و سردرگمی مراحل', frequency: Math.min(total, Math.round(total * 0.19)), selected: true },
+      { id: 5, name: 'خطا و قطعی سامانه برخط', frequency: Math.min(total, Math.round(total * 0.14)), selected: true },
+      { id: 6, name: 'عدم شفافیت ضوابط', frequency: Math.min(total, Math.round(total * 0.12)), selected: true },
+      { id: 7, name: 'محدودیت دسترسی مکانی/زمانی', frequency: Math.min(total, Math.round(total * 0.10)), selected: true },
+      { id: 8, name: 'نقض حریم خصوصی کاربران', frequency: Math.min(total, Math.round(total * 0.07)), selected: false },
+      { id: 9, name: 'مشکل پیگیری کد رهگیری', frequency: Math.min(total, Math.round(total * 0.05)), selected: false },
+    ];
+  });
+
+  // Candidate Actions Modal States
+  const [mergeCandidateSource, setMergeCandidateSource] = useState<CandidateLabel | null>(null);
+  const [isMergeCandidateModalOpen, setIsMergeCandidateModalOpen] = useState(false);
+
+  // Label Actions Modal States
+  const [mergeLabelSource, setMergeLabelSource] = useState<LabelItem | null>(null);
+  const [isMergeLabelModalOpen, setIsMergeLabelModalOpen] = useState(false);
 
   // Edit / Add Label Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -377,8 +407,45 @@ export const LabelsStep: React.FC<LabelsStepProps> = ({
                 مدل زبانی متن‌های پالایش‌شده مرحله ۱ را دسته‌دسته می‌خواند، دلایل صریح شکایت شهروندان را بیرون می‌کشد و سپس دلایل مشابه را در برچسب‌های متمرکز دسته‌بندی می‌کند تا تاکسونومی پروژه تشکیل شود.
               </p>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-ink block">انتخاب مدل زبانی استخراج‌کننده برچسب:</label>
+                  <select
+                    value={selectedExtractionModel}
+                    onChange={(e) => setSelectedExtractionModel(e.target.value)}
+                    className="w-full px-3 py-2 border border-line-strong rounded-xl bg-surface text-xs font-medium text-ink focus:border-accent"
+                  >
+                    <option value="qwen2.5-14b-instruct">qwen2.5-14b-instruct (LM Studio محلی On-Premises)</option>
+                    <option value="llama-3.1-8b-instruct">llama-3.1-8b-instruct (Ollama درگاه سازمانی)</option>
+                    <option value="parsbert-base">parsbert-base (طبقه‌بند متنی هوفا)</option>
+                    <option value="fabert">fabert (ترنسفورمر فارسی)</option>
+                    <option value="gpt-4o-mini">gpt-4o-mini (درگاه ابری مجاز)</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-ink block">جامعه آماری استخراج:</label>
+                  <input
+                    type="text"
+                    disabled
+                    value={`پوشش ${datasetCount.toLocaleString('fa-IR')} متن پالایش‌شده مرحله ۱`}
+                    className="w-full px-3 py-2 border border-line rounded-xl bg-surface-2 text-xs font-mono text-muted"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-ink block">توضیح و دستور استخراج برچسب (System Prompt / Instruction):</label>
+                <textarea
+                  rows={2}
+                  value={extractionInstruction}
+                  onChange={(e) => setExtractionInstruction(e.target.value)}
+                  className="w-full p-2.5 border border-line-strong rounded-xl bg-surface text-xs text-ink focus:border-accent font-sans leading-relaxed"
+                  placeholder="دستور استخراج دلایل و برچسب‌های پرتکرار از شکایات..."
+                />
+              </div>
+
               <div className="p-3.5 rounded-xl bg-surface-2/60 border border-line text-xs text-muted flex items-center justify-between">
-                <span>وضعیت ورودی: <b>متن‌های تمیزشده آماده استخراج</b></span>
+                <span>وضعیت ورودی: <b>متن‌های تمیزشده آماده استخراج ({datasetCount.toLocaleString('fa-IR')} متن)</b></span>
                 <span className="font-mono text-accent font-semibold">بسته‌های ۱۵تایی</span>
               </div>
 

@@ -59,7 +59,7 @@ export const SettingsStep: React.FC<SettingsStepProps> = ({
       alert(
         '⛔ حالت ایزوله امنیتی فعال است:\n\n' +
         'در این حالت ارتباط با سرویس‌های ابری خارجی به دلیل حفاظت قطعی از محرمانگی داده‌های سازمانی مسدود است.\n\n' +
-        'برای فعال‌سازی این درگاه، ابتدا در زبانه «حالت حریم خصوصی و امنیت» حالت آزاد (اتصال به کلود مجاز) را انتخاب فرمایید.'
+        'برای فعال‌سازی این درگاه، ابتدا در زبانه «حالت حریم خصوصی و امنیت» حالت آزاد (اتصال به سرویس‌های ابری مجاز) را انتخاب فرمایید.'
       );
       return;
     }
@@ -172,7 +172,7 @@ export const SettingsStep: React.FC<SettingsStepProps> = ({
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-sm text-ink flex items-center gap-2">
                   <Globe className="w-5 h-5 text-accent" />
-                  <span>حالت آزاد (اتصال به کلود مجاز)</span>
+                  <span>حالت آزاد (اتصال به سرویس‌های ابری مجاز)</span>
                 </span>
                 <span
                   className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${

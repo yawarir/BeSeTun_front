@@ -113,11 +113,16 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
         <div className="bg-surface border border-line rounded-2xl p-6 max-w-4xl space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-4">
             <div>
-              <h3 className="font-bold text-base text-ink">
-                جدول ارزیابی جامع عملکرد برچسب‌زنی و ضریب توافق کارشناسان
-              </h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-bold text-base text-ink">
+                  جدول ارزیابی جامع عملکرد برچسب‌زنی و ضریب توافق کارشناسان
+                </h3>
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[11px] font-bold">
+                  داده‌های نمونه (شبیه‌سازی نمایشی)
+                </span>
+              </div>
               <p className="text-xs text-muted mt-1 leading-relaxed">
-                محاسبه روی ۱۰۰ متن نمونه مرجع در مقایسه با برچسب‌های نهایی پس از داوری و حل اختلاف (Adjudication)
+                محاسبه روی ۲۱ متن نمونه مرجع پروژه در مقایسه با برچسب‌های نهایی پس از داوری و حل اختلاف (Adjudication)
               </p>
             </div>
 
@@ -176,7 +181,7 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
                   </td>
                   <td className="col-metric-15 text-accent font-bold">۰٫۸۱</td>
                   <td className="col-metric-15 text-accent font-bold">۰٫۷۴</td>
-                  <td className="col-metric-15 text-accent font-bold">۰٫۷۹</td>
+                  <td className="col-metric-15 text-accent font-bold">۰٫۷۷</td>
                   <td className="col-metric-15 text-accent font-extrabold">۰٫۷۷</td>
                 </tr>
                 <tr className="row-golden">
@@ -205,8 +210,8 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
 
             <div className="p-3 rounded-lg border border-line bg-surface-2 text-center">
               <span className="text-[11px] text-muted block mb-0.5">رکوردهای مشکوک در اجراها</span>
-              <span className="text-base font-mono font-bold text-ochre">۲۶ از ۲۰۰</span>
-              <span className="text-[10px] text-muted block">معادل ۱۳٪ کل رکوردهای ارزیابی</span>
+              <span className="text-base font-mono font-bold text-ochre">۵ از ۴۲</span>
+              <span className="text-[10px] text-muted block">معادل ۱۲٪ کل داده‌های ارزیابی‌شده</span>
             </div>
 
             <div className="p-3 rounded-lg border border-line bg-surface-2 text-center">
@@ -279,7 +284,7 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
                   مجموعه‌داده طلایی نهایی آماده برای فاین‌تیون مدل‌ها
                 </h3>
                 <p className="text-xs text-muted">
-                  مجموعه ۲٬۳۲۰ رکوردی شامل تقسیم سه‌گانه با تضمین عدم نشت داده
+                  مجموعه داده نهایی پروژه شامل تقسیم سه‌گانه با تضمین عدم نشت داده
                 </p>
               </div>
 

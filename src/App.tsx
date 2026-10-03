@@ -52,6 +52,8 @@ export default function App() {
   const [providers, setProviders] = useState(INITIAL_PROVIDERS);
   const [extractedLabels, setExtractedLabels] = useState<LabelItem[]>([]);
   const [isModelRunCompleted, setIsModelRunCompleted] = useState<boolean>(false);
+  const [datasetCount, setDatasetCount] = useState<number>(42);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
   const [guideActive, setGuideActive] = useState<boolean>(false);
   const [guideMode, setGuideMode] = useState<'banner' | 'floating' | 'minimized'>('banner');
   const [currentGuideIndex, setCurrentGuideIndex] = useState<number>(0);
@@ -62,9 +64,26 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  // Sync step completion progress dynamically so Dashboard progress is always accurate
+  useEffect(() => {
+    if (!isDatasetLoaded) return;
+    setStepStatuses((prev) => {
+      const next = { ...prev };
+      next.data = 'done';
+      if (extractedLabels.length > 0) {
+        next.labels = 'done';
+      }
+      if (isModelRunCompleted) {
+        next.model = 'done';
+      }
+      return next;
+    });
+  }, [isDatasetLoaded, extractedLabels.length, isModelRunCompleted]);
+
   // Dataset Loaded Handler
-  const handleDatasetLoaded = (_count: number) => {
+  const handleDatasetLoaded = (count: number) => {
     setIsDatasetLoaded(true);
+    setDatasetCount(count || 42);
     setStepStatuses({
       data: 'done',
       labels: 'ready',
@@ -212,6 +231,8 @@ export default function App() {
         }}
         onNavigate={(step) => handleSelectStep(step as MainStepKey)}
         onLogout={handleLogout}
+        isMobileMenuOpen={mobileSidebarOpen}
+        onToggleMobileMenu={() => setMobileSidebarOpen(!mobileSidebarOpen)}
       />
 
       <div className="flex-1 flex max-w-[1600px] w-full mx-auto">
@@ -224,10 +245,12 @@ export default function App() {
           onChangeRole={handleRoleChange}
           onLogout={handleLogout}
           extFlag={extFlag}
+          isMobileOpen={mobileSidebarOpen}
+          onCloseMobile={() => setMobileSidebarOpen(false)}
         />
 
         {/* Main Viewport */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 space-y-6 min-w-0 max-w-6xl">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 space-y-6 min-w-0 max-w-6xl w-full">
           {/* 6-stage lifecycle stepper: Only visible in Admin / Lead role! In Operator mode, it is hidden as requested */}
           {role === 'admin' && currentStep !== 'settings' && (
             <PipelineStepper
@@ -296,6 +319,7 @@ export default function App() {
                   labels={extractedLabels}
                   onLabelsChange={setExtractedLabels}
                   isDatasetLoaded={isDatasetLoaded}
+                  datasetCount={datasetCount}
                 />
               )}
 
@@ -308,6 +332,7 @@ export default function App() {
                   onGoToLabels={() => handleSelectStep('labels', 'extract')}
                   isRunCompleted={isModelRunCompleted}
                   onRunComplete={() => setIsModelRunCompleted(true)}
+                  datasetCount={datasetCount}
                 />
               )}
 
@@ -317,6 +342,7 @@ export default function App() {
                   onChangeTab={handleSubTabChange}
                   onOpenShortcuts={() => setShortcutsModalOpen(true)}
                   role={role}
+                  datasetCount={datasetCount}
                 />
               )}
 
@@ -332,6 +358,7 @@ export default function App() {
                   activeTab={subTabs.results || 'paper'}
                   onChangeTab={handleSubTabChange}
                   onGoFineTune={() => handleSelectStep('tune')}
+                  datasetCount={datasetCount}
                 />
               )}
 

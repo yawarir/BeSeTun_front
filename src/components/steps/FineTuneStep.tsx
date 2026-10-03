@@ -227,19 +227,19 @@ export const FineTuneStep: React.FC = () => {
                 <td className="p-3 font-mono font-bold" dir="ltr">TF-IDF + LogReg</td>
                 <td className="p-3 font-mono">۰٫۶۱</td>
                 <td className="p-3 font-mono">۰٫۶۴</td>
-                <td className="p-3 font-mono text-good font-semibold">+۳.۰٪</td>
+                <td className="p-3 font-mono text-good font-semibold">۳ واحد درصد</td>
               </tr>
               <tr>
                 <td className="p-3 font-mono font-bold" dir="ltr">ParsBERT Base</td>
                 <td className="p-3 font-mono">۰٫۷۲</td>
                 <td className="p-3 font-mono font-bold text-accent text-sm">۰٫۷۶</td>
-                <td className="p-3 font-mono text-good font-semibold">+۴.۰٪</td>
+                <td className="p-3 font-mono text-good font-semibold">۴ واحد درصد</td>
               </tr>
               <tr className="bg-good-soft/30">
                 <td className="p-3 font-mono font-bold" dir="ltr">FaBERT (بهترین دقت)</td>
                 <td className="p-3 font-mono">۰٫۷۴</td>
                 <td className="p-3 font-mono font-bold text-good text-sm">۰٫۷۸</td>
-                <td className="p-3 font-mono text-good font-bold">+۴.۰٪</td>
+                <td className="p-3 font-mono text-good font-bold">۴ واحد درصد</td>
               </tr>
             </tbody>
           </table>
