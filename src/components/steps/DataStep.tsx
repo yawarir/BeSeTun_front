@@ -16,10 +16,13 @@ import {
   Check,
   Play,
   RotateCcw,
+  HardDrive,
+  FolderKanban,
 } from 'lucide-react';
-import { INITIAL_RULES } from '../../mockData';
-import { CleaningRule } from '../../types';
+import { INITIAL_RULES, INITIAL_DROPPED_SAMPLES } from '../../demo';
+import { CleaningRule, ProjectConfig } from '../../types';
 import sampleCitizenComplaints from '../../data/sample_citizen_complaints.json';
+import { formatInt, formatPct, formatRatio, toFaDigits } from '../../lib/formatFa';
 
 interface RawComplaintItem {
   id: number;
@@ -43,6 +46,8 @@ interface DataStepProps {
   onDatasetLoaded?: (count: number) => void;
   onDatasetCleared?: () => void;
   isInitialLoaded?: boolean;
+  project?: ProjectConfig;
+  onGoToProject?: () => void;
 }
 
 export const DataStep: React.FC<DataStepProps> = ({
@@ -51,6 +56,8 @@ export const DataStep: React.FC<DataStepProps> = ({
   onDatasetLoaded,
   onDatasetCleared,
   isInitialLoaded = false,
+  project,
+  onGoToProject,
 }) => {
   // Dataset state: Clean and empty by default
   const [loadedFiles, setLoadedFiles] = useState<LoadedFileMeta[]>(
@@ -108,28 +115,42 @@ export const DataStep: React.FC<DataStepProps> = ({
 
   // Masking function for live sandbox:
   // Strict order with digit boundary checks:
-  // 1. Bank card (16 digits with optional spaces or dashes, strict boundary)
+  // 1. Bank card (exactly 16 digits, either contiguous or as 4 groups of 4 separated by one space or dash)
   // 2. IBAN (IR + 24 digits)
-  // 3. Mobile phone (09/۰۹/+98/۰۰۹۸ followed by 9 digits with optional spaces/dashes, strict boundary)
-  // 4. Landlines (e.g. 021-xxxxxxxx)
-  // 5. National ID (strictly 10 digits with strict negative lookarounds)
-  // 6. Names and branches
+  // 3. Mobile phone (starts with 09/۰۹/+98/0098, exactly 11 digits)
+  // 4. Landlines (0 followed by 1-8 and 8-9 digits)
+  // 5. National ID (exactly 10 digits with negative digit lookarounds)
+  // 6. Names: after آقای/خانم/جناب آقای/سرکار خانم take at most 2 words, stopping before verbs/connectors
+  // 7. Branches
   const maskText = (txt: string) => {
     return txt
-      // 1. Bank Card (16 digits with optional spaces or dashes, strict boundary)
-      .replace(/(?<![\d۰-۹])(?:[\d۰-۹][\s\-_–—]*){16}(?![\d۰-۹])/g, '[شماره_کارت]')
-      // 2. IBAN
-      .replace(/(?<![A-Za-z\d۰-۹])(?:IR|ir|IR-|ir-)[\s\-_–—]?(?:[\d۰-۹][\s\-_–—]*){24}(?![\d۰-۹])/g, '[شماره_شبا]')
-      // 3. Mobile Phone (09/۰۹/+98/۰۰۹۸ followed by 9 digits with optional spaces/dashes, strict boundary)
-      .replace(/(?<![\d۰-۹])(?:(?:\+98|0098|\+۹۸|۰۰۹۸|0|۰)?[\s\-_–—]*[9۹])(?:[\s\-_–—]*[\d۰-۹]){9}(?![\d۰-۹])/g, '[شماره_تلفن]')
-      // 4. Landlines (e.g. 021-xxxxxxxx)
-      .replace(/(?<![\d۰-۹])(?:0|۰)[1-8۱-۸](?:[\s\-_–—]*[\d۰-۹]){8,9}(?![\d۰-۹])/g, '[شماره_تلفن]')
-      // 5. National Code (strictly 10 digits with strict negative lookarounds)
-      .replace(/(?<![\d۰-۹])(?:[\d۰-۹][\s\-_–—]*){10}(?![\d۰-۹])/g, '[کد_ملی]')
-      // 6. Names
-      .replace(/(?:جناب آقای|آقای|سرکار خانم|خانم)\s+[\u0600-\u06FF]+(?:\s+[\u0600-\u06FF]+)?/g, '[نام_شخص]')
-      // 7. Branches
+      // 1. Bank Card: exactly 16 digits, either contiguous or 4 groups of 4 separated by one space or dash
+      .replace(/(?<![\d۰-۹])(?:[\d۰-۹]{16}|(?:[\d۰-۹]{4}[ -]){3}[\d۰-۹]{4})(?![\d۰-۹])/g, '[شماره_کارت]')
+      // 2. IBAN: IR + 24 digits
+      .replace(/(?<![A-Za-z\d۰-۹])(?:IR|ir)[\s-]?[\d۰-۹]{24}(?![\d۰-۹])/g, '[شماره_شبا]')
+      // 3. Mobile Phone: 11 digits starting with 09 or ۰۹ or +989 / +۹۸۹ / 00989
+      .replace(/(?<![\d۰-۹])(?:\+98|0098|\+۹۸|۰۰۹۸|0|۰)[9۹](?:[\d۰-۹]{9}|(?:[ -][\d۰-۹]{3}[ -][\d۰-۹]{4}[ -][\d۰-۹]{2}))(?![\d۰-۹])/g, '[شماره_تلفن]')
+      // 4. Landlines: 0 followed by 1-8 and 8-9 digits
+      .replace(/(?<![\d۰-۹])(?:0|۰)[1-8۱-۸](?:[\d۰-۹]{8}|(?:[ -][\d۰-۹]{4}[ -][\d۰-۹]{4}))(?![\d۰-۹])/g, '[شماره_تلفن]')
+      // 5. National ID: exactly 10 digits with negative lookarounds
+      .replace(/(?<![\d۰-۹])[\d۰-۹]{10}(?![\d۰-۹])/g, '[کد_ملی]')
+      // 6. Names: after آقای/خانم/جناب آقای/سرکار خانم take at most 2 words, stopping before verbs/connectors
+      .replace(/(?:جناب آقای|سرکار خانم|آقای|خانم)\s+([\u0600-\u06FF]+)(?:\s+(?!(?:است|بود|گفت|و|به|در|از|که|دارند|داشتند|خواهند)(?:\s|$|[\.,،؛]))[\u0600-\u06FF]+)?/g, '[نام_شخص]')
+      // 7. Branch
       .replace(/شعبه\s+[\u0600-\u06FF]+/g, '[شعبه_سازمان]');
+  };
+
+  // Generate downloadable JSON file dynamically from imported dataset
+  const handleDownloadSampleJson = () => {
+    const blob = new Blob([JSON.stringify(sampleCitizenComplaints, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sample_citizen_complaints.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   // Load the standalone JSON sample dataset
@@ -415,11 +436,15 @@ export const DataStep: React.FC<DataStepProps> = ({
                 برای ارزیابی سریع و عملی خط لوله ۶ مرحله‌ای بدون نیاز به آماده‌سازی فایل شخصی، می‌توانید با یک کلیک این داده‌های نمونه را وارد چرخه نمایید و با راهنمای گام‌به‌گام پیش بروید.
               </p>
 
-              <div className="grid grid-cols-2 gap-2 text-[11px] text-ink-2 bg-surface p-3 rounded-xl border border-line">
-                <div>• تعداد رکورد: <b>۴۲ متن ساختگی پس از پالایش</b></div>
-                <div>• ماهیت داده‌ها: <b>کاملاً ساختگی (Synthetic)</b></div>
-                <div>• ساختار فیلدها: <b>id, text, source</b></div>
-                <div>• گمنام‌سازی: <b>آماده پالایش</b></div>
+              <div className="space-y-1.5 text-[11px] text-ink-2 bg-surface p-3.5 rounded-xl border border-line">
+                <div className="flex items-center justify-between">
+                  <span>• فیلدهای رکورد: <b className="font-mono text-accent" dir="ltr">id, text, category, timestamp, source</b></span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-700 dark:text-amber-400 font-bold border border-amber-500/20">
+                    داده‌ی نمایشی
+                  </span>
+                </div>
+                <div>• ستون <b>category</b> فراداده سازمانی است و هرگز به مدل زبانی ارسال نمی‌شود (ارزیابی صرفاً روی متن آزاد صورت می‌گیرد).</div>
+                <div>• تعداد رکورد: <b>{formatInt(50)} متن ساختگی</b> (شامل نمونه‌های حاوی کارت، تلفن و کد ملی جهت آزمایش گمنام‌سازی).</div>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
@@ -432,15 +457,14 @@ export const DataStep: React.FC<DataStepProps> = ({
                   <span>{isLoadingSample ? 'در حال بارگذاری...' : 'بارگذاری این دیتاست در پروژه'}</span>
                 </button>
 
-                <a
-                  href="/sample_citizen_complaints.json"
-                  download="sample_citizen_complaints.json"
+                <button
+                  onClick={handleDownloadSampleJson}
                   className="w-full sm:w-auto py-2.5 px-3 rounded-xl border border-line bg-surface text-ink text-xs font-semibold hover:bg-surface-2 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                   title="دانلود فایل JSON نمونه روی رایانه"
                 >
                   <Download className="w-3.5 h-3.5 text-muted" />
                   <span>دانلود JSON</span>
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -483,7 +507,7 @@ export const DataStep: React.FC<DataStepProps> = ({
                         {file.name}
                       </b>
                       <span className="text-[11px] text-muted">
-                        {file.rowCount.toLocaleString('fa-IR')} ردیف — حجم: {file.size} — بارگذاری: {file.loadedAt}
+                        {formatInt(file.rowCount)} ردیف — حجم: {file.size} — بارگذاری: {file.loadedAt}
                       </span>
                     </div>
 
@@ -554,7 +578,7 @@ export const DataStep: React.FC<DataStepProps> = ({
                   <div>
                     <h3 className="font-bold text-base text-ink">قیف پالایش و پاک‌سازی داده‌های خام</h3>
                     <p className="text-xs text-muted mt-0.5">
-                      ریز شفاف دلایل افت رکوردها برای ارزیابی و گزارش کنترل کیفیت بر اساس {rawTotal} رکورد اولیه
+                      ریز شفاف دلایل افت رکوردها برای ارزیابی و گزارش کنترل کیفیت بر اساس {formatInt(rawTotal)} رکورد اولیه
                     </p>
                   </div>
 
@@ -581,11 +605,11 @@ export const DataStep: React.FC<DataStepProps> = ({
                           <div className="flex items-center gap-3">
                             {item.drop > 0 && (
                               <span className="text-[11px] font-mono text-crit font-semibold">
-                                -{item.drop.toLocaleString('fa-IR')} مورد ({item.why})
+                                -{formatInt(item.drop)} مورد ({item.why})
                               </span>
                             )}
                             <span className="font-mono font-bold text-ink">
-                              {item.count.toLocaleString('fa-IR')} رکورد ({pct}٪)
+                              {formatInt(item.count)} رکورد ({formatPct(pct)})
                             </span>
                           </div>
                         </div>
@@ -605,7 +629,7 @@ export const DataStep: React.FC<DataStepProps> = ({
                 <div className="p-3.5 rounded-xl bg-good-soft border border-good/30 text-xs text-good flex items-center gap-2 font-medium">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>
-                    متن‌های آماده برای ورود به مرحله بعد: <b>{finalReadyCount.toLocaleString('fa-IR')} متن پالایش‌شده</b> ({readyPercent}٪ از کل متن‌های خام ورودی).
+                    متن‌های آماده برای ورود به مرحله بعد: <b>{formatInt(finalReadyCount)} متن پالایش‌شده</b> ({formatPct(readyPercent)} از کل متن‌های خام ورودی).
                   </span>
                 </div>
               </div>
@@ -687,7 +711,7 @@ export const DataStep: React.FC<DataStepProps> = ({
                   نمونه‌گیری متقارن بدون هم‌پوشانی (تضمین علمی)
                 </h3>
                 <p className="text-xs text-muted leading-relaxed">
-                  از میان {finalReadyCount.toLocaleString('fa-IR')} متن آماده، دو بخش مجزا برداشته می‌شود. «عدد تکرارپذیری» مشخص می‌کند کدام متن‌ها انتخاب شوند و با همان عدد، همین نمونه عیناً بازتولید می‌شود.
+                  از میان {formatInt(finalReadyCount)} متن آماده، دو بخش مجزا برداشته می‌شود. «عدد تکرارپذیری» مشخص می‌کند کدام متن‌ها انتخاب شوند و با همان عدد، همین نمونه عیناً بازتولید می‌شود.
                 </p>
               </div>
 
@@ -702,7 +726,7 @@ export const DataStep: React.FC<DataStepProps> = ({
                         <div className="flex items-center justify-between">
                           <b className="text-xs text-ink">نمونه مرجع (برچسب‌زنی کور)</b>
                           <span className="font-mono font-bold text-accent text-xs">
-                            {refSampleCount.toLocaleString('fa-IR')} متن
+                            {formatInt(refSampleCount)} متن
                           </span>
                         </div>
                         <p className="text-[11px] text-muted">
@@ -714,7 +738,7 @@ export const DataStep: React.FC<DataStepProps> = ({
                         <div className="flex items-center justify-between">
                           <b className="text-xs text-ink">نمونه بازبینی (پیشنهاد مدل)</b>
                           <span className="font-mono font-bold text-accent text-xs">
-                            {revSampleCount.toLocaleString('fa-IR')} متن
+                            {formatInt(revSampleCount)} متن
                           </span>
                         </div>
                         <p className="text-[11px] text-muted">
@@ -725,7 +749,7 @@ export const DataStep: React.FC<DataStepProps> = ({
 
                     <div className="p-3 rounded-xl bg-accent-soft/40 border border-accent/20 text-xs text-accent flex items-center justify-between">
                       <span>مجموع نمونه‌های انتخابی مجزا:</span>
-                      <b className="font-mono">{(refSampleCount + revSampleCount).toLocaleString('fa-IR')} از {finalReadyCount.toLocaleString('fa-IR')} متن کل (تضمین عدم هم‌پوشانی)</b>
+                      <b className="font-mono">{formatRatio(refSampleCount + revSampleCount, finalReadyCount)} متن کل (تضمین عدم هم‌پوشانی)</b>
                     </div>
                   </>
                 );
@@ -883,7 +907,7 @@ export const DataStep: React.FC<DataStepProps> = ({
                 <div className="flex items-center gap-3 text-xs text-muted">
                   <span>وضعیت: <b>متن‌های خام پالایش‌شده (پیش از برچسب‌زنی)</b></span>
                   <span className="font-mono font-semibold">
-                    {filteredRecords.length.toLocaleString('fa-IR')} از {records.length.toLocaleString('fa-IR')} رکورد
+                    {formatRatio(filteredRecords.length, records.length)} رکورد
                   </span>
                 </div>
               </div>
@@ -902,10 +926,10 @@ export const DataStep: React.FC<DataStepProps> = ({
                   return (
                     <div key={r.id} className="p-3.5 hover:bg-surface-2 transition-colors space-y-1.5 text-xs">
                       <div className="flex items-center justify-between text-[11px] text-muted">
-                        <span className="font-mono font-bold text-accent">رکورد #{r.id.toLocaleString('fa-IR')}</span>
+                        <span className="font-mono font-bold text-accent">رکورد #{formatInt(r.id)}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] px-2 py-0.5 rounded bg-surface border border-line text-muted">
-                            {wordCount} واژه
+                            {formatInt(wordCount)} واژه
                           </span>
                           <span className="text-[10px] px-2 py-0.5 rounded bg-good-soft text-good font-semibold">
                             پالایش‌شده در قیف

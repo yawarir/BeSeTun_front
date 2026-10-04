@@ -26,9 +26,10 @@ export const PipelineStepper: React.FC<PipelineStepperProps> = ({
   // Collapsible state: Default is closed (false) as requested by user to keep dashboard compact
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  const completedCount = Object.values(stepStatuses).filter((s) => s === 'done').length;
-  const progressPct = Math.round((completedCount / MAIN_STEPS.length) * 100);
-  const activeStepDef = MAIN_STEPS.find((s) => s.key === currentStep);
+  const pipelineSteps = MAIN_STEPS.filter((s) => s.stepNumber > 0);
+  const completedCount = pipelineSteps.filter((s) => stepStatuses[s.key] === 'done').length;
+  const progressPct = Math.round((completedCount / pipelineSteps.length) * 100);
+  const activeStepDef = pipelineSteps.find((s) => s.key === currentStep);
 
   return (
     <div
@@ -41,7 +42,7 @@ export const PipelineStepper: React.FC<PipelineStepperProps> = ({
       <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isExpanded ? 'pb-3 border-b border-line' : ''}`}>
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-accent text-on-accent flex items-center justify-center font-bold text-xs shadow-[0_0_14px_rgba(30,58,138,0.35)] shrink-0">
-            {completedCount}/{MAIN_STEPS.length}
+            {completedCount}/{pipelineSteps.length}
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
@@ -98,7 +99,7 @@ export const PipelineStepper: React.FC<PipelineStepperProps> = ({
       {/* 6 Stage Cards Grid: Expands with smooth fade & slide when isExpanded is true */}
       {isExpanded && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 animate-in fade-in slide-in-from-top-2 duration-300">
-          {MAIN_STEPS.map((step) => {
+          {pipelineSteps.map((step) => {
             const status = stepStatuses[step.key] || 'ready';
             const isActive = currentStep === step.key;
             const isDone = status === 'done';

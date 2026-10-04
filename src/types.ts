@@ -1,9 +1,10 @@
-export type UserRole = 'admin' | 'operator';
+export type UserRole = 'admin' | 'expert';
 
 export type AppTheme = 'light' | 'dark';
 
 export type MainStepKey =
   | 'dash'
+  | 'project'
   | 'data'
   | 'labels'
   | 'model'
@@ -22,6 +23,18 @@ export interface StepDefinition {
   shortDesc: string;
   detailedDesc: string;
   defaultTab: string;
+}
+
+export interface ProjectConfig {
+  id: string;
+  persianName: string;
+  latinSlug: string;
+  user: string;
+  baseDir: string;
+  description: string;
+  createdAt: string;
+  isInitialized: boolean;
+  directories: string[];
 }
 
 export interface FunnelStep {
@@ -44,6 +57,8 @@ export interface RawTextRecord {
   id: number;
   text: string;
   sourceFile: string;
+  category?: string;
+  timestamp?: string;
   status: 'raw' | 'cleaned' | 'sampled_ref' | 'sampled_rev' | 'dropped';
   dropReason?: string;
   modelSuggestions: number[];
@@ -108,7 +123,7 @@ export interface AdjudicationItem {
   note: string;
 }
 
-export interface OperatorAnswer {
+export interface ExpertAnswer {
   labels: number[];
   noReason: boolean;
   piiFlag: boolean;
@@ -117,6 +132,9 @@ export interface OperatorAnswer {
   touched: boolean;
   savedAt?: string;
 }
+
+// Backwards compatibility alias
+export type OperatorAnswer = ExpertAnswer;
 
 export interface FineTuneModelConfig {
   id: string;

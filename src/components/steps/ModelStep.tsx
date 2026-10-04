@@ -27,6 +27,7 @@ interface ModelStepProps {
   onGoToLabels?: () => void;
   isRunCompleted: boolean;
   onRunComplete: () => void;
+  datasetCount?: number;
 }
 
 export const ModelStep: React.FC<ModelStepProps> = ({
@@ -37,6 +38,7 @@ export const ModelStep: React.FC<ModelStepProps> = ({
   onGoToLabels,
   isRunCompleted,
   onRunComplete,
+  datasetCount = 42,
 }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [runProgress, setRunProgress] = useState(0);
@@ -292,7 +294,7 @@ export const ModelStep: React.FC<ModelStepProps> = ({
                       <div className="flex items-center gap-1.5">
                         <span className="text-muted font-medium">پاسخ اجرای A:</span>
                         <div className="flex gap-1">
-                          {item.modelSuggestions.map((lbId) => (
+                          {item.modelSuggestions.map((lbId: number) => (
                             <span
                               key={lbId}
                               className="px-2 py-0.5 rounded bg-accent-soft text-accent font-semibold text-[11px]"
@@ -306,7 +308,7 @@ export const ModelStep: React.FC<ModelStepProps> = ({
                       <div className="flex items-center gap-1.5">
                         <span className="text-muted font-medium">پاسخ اجرای B:</span>
                         <div className="flex gap-1">
-                          {item.modelRunB.map((lbId) => (
+                          {item.modelRunB.map((lbId: number) => (
                             <span
                               key={lbId}
                               className="px-2 py-0.5 rounded bg-surface-2 text-ink-2 border border-line font-medium text-[11px]"

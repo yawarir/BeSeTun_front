@@ -26,7 +26,7 @@ export const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose 
               <Keyboard className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-ink">کلیدهای میانبر میزکار اوپراتور</h3>
+              <h3 className="font-bold text-lg text-ink">کلیدهای میانبر میزکار کارشناس</h3>
               <p className="text-xs text-muted">برای افزایش چشمگیر سرعت برچسب‌زنی بدون استفاده از ماوس</p>
             </div>
           </div>

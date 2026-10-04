@@ -14,19 +14,26 @@ import {
   Sliders,
 } from 'lucide-react';
 import { INITIAL_LABELS } from '../../mockData';
+import { formatInt, formatRatio, formatPct, formatCI } from '../../lib/formatFa';
 
 interface ResultsStepProps {
   activeTab: string;
   onChangeTab: (tab: string) => void;
   onGoFineTune: () => void;
+  datasetCount?: number;
 }
 
 export const ResultsStep: React.FC<ResultsStepProps> = ({
   activeTab,
   onChangeTab,
   onGoFineTune,
+  datasetCount = 42,
 }) => {
   const [copiedType, setCopiedType] = useState<string | null>(null);
+
+  const refSampleSize = Math.floor(datasetCount / 2);
+  const suspiciousCount = Math.round(datasetCount * 0.12);
+  const suspiciousPct = Math.round((suspiciousCount / datasetCount) * 100);
 
   const copyText = (text: string, type: string) => {
     navigator.clipboard.writeText(text);
@@ -45,20 +52,20 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
   "model_provider": "LM Studio Local (127.0.0.1:1234)",
   "model_name": "qwen2.5-14b-instruct",
   "sampling_seed": 1404,
-  "total_records_processed": 2320,
-  "reference_sample_size": 100,
-  "review_sample_size": 100,
+  "total_records_processed": ${datasetCount},
+  "reference_sample_size": ${refSampleSize},
+  "review_sample_size": ${datasetCount - refSampleSize},
   "cohen_kappa": 0.78,
   "macro_f1": 0.77,
   "micro_f1": 0.81,
   "anonymization_error_rate": "0.015",
-  "train_val_test_split": {"train": 1856, "val": 232, "test": 232},
+  "train_val_test_split": {"train": ${Math.round(datasetCount * 0.8)}, "val": ${Math.round(datasetCount * 0.1)}, "test": ${Math.round(datasetCount * 0.1)}},
   "note": "Reference sample is strictly segregated into test split to avoid leakage."
 }`;
 
   const datasetCardSnippet = `# شناسنامه مجموعه‌داده طلایی بیستون (BeSeTun Dataset Card)
 **پروژه:** شکایت‌های شهروندی و درخواست‌های خدمات عمومی ۱۴۰۳
-**تعداد کل رکوردها:** ۲٬۳۲۰ ردیف متن آزاد گمنام‌شده
+**تعداد کل رکوردها:** ${formatInt(datasetCount)} ردیف متن آزاد گمنام‌شده
 **تعداد برچسب‌های تاکسونومی:** ۸ برچسب موضوعی مستقل
 **زبان:** فارسی استاندارد (FA)
 **پروتکل برچسب‌زنی:** برچسب‌زنی کور دوگانه کارشناس + حل اختلاف داوری
@@ -78,8 +85,8 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
 مدل زبانی Qwen 14B (نقره‌ای) & ۰٫۸۱ & ۰٫۷۴ & ۰٫۷۹ & ۰٫۷۷ \\\\
 مدل + بازبینی کارشناس (طلایی) & \\textbf{۰٫۸۹} & \\textbf{۰٫۸۵} & \\textbf{۰٫۸۸} & \\textbf{۰٫۸۷} \\\\
 \\hline
-\\multicolumn{5}{l}{\\small توافق دو کارشناس (کاپای کوهن): ۰٫۷۸ (فاصله اطمینان ۹۵٪: [۰٫۷۱, ۰٫۸۵])} \\\\
-\\multicolumn{5}{l}{\\small رکوردهای مشکوک در دو اجرا: ۲۶ از ۲۰۰ (۱۳٪)} \\\\
+\\multicolumn{5}{l}{\\small توافق دو کارشناس (کاپای کوهن): ۰٫۷۸ (فاصله اطمینان ۹۵٪: [۰٫۷۱، ۰٫۸۵])} \\\\
+\\multicolumn{5}{l}{\\small رکوردهای مشکوک در دو اجرا: ${formatRatio(suspiciousCount, datasetCount)} (${formatPct(suspiciousPct)})} \\\\
 \\hline
 \\end{tabular}
 \\end{table}`;
@@ -122,7 +129,7 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
                 </span>
               </div>
               <p className="text-xs text-muted mt-1 leading-relaxed">
-                محاسبه روی ۲۱ متن نمونه مرجع پروژه در مقایسه با برچسب‌های نهایی پس از داوری و حل اختلاف (Adjudication)
+                محاسبه روی {formatInt(refSampleSize)} متن نمونه مرجع پروژه در مقایسه با برچسب‌های نهایی پس از داوری و حل اختلاف (Adjudication)
               </p>
             </div>
 
@@ -202,21 +209,40 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
 
           {/* Statistical Metrics Strip */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="p-3 rounded-lg border border-line bg-surface-2 text-center">
-              <span className="text-[11px] text-muted block mb-0.5">ضریب کاپای کوهن (توافق کارشناسان)</span>
-              <span className="text-base font-mono font-bold text-good">۰٫۷۸</span>
-              <span className="text-[10px] text-muted block">فاصله اطمینان ۹۵٪: [۰٫۷۱, ۰٫۸۵]</span>
+            <div className="p-3 rounded-lg border border-line bg-surface-2 text-center space-y-1">
+              <div className="flex items-center justify-center gap-1.5">
+                <span className="text-[11px] text-muted block">ضریب کاپای کوهن (توافق کارشناسان)</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[9px] font-bold">
+                  داده‌ی نمایشی
+                </span>
+              </div>
+              <span className="text-base font-mono font-bold text-good block">۰٫۷۸</span>
+              <span className="text-[10px] text-muted block">فاصله اطمینان ۹۵٪: {formatCI(0.71, 0.85)}</span>
             </div>
 
-            <div className="p-3 rounded-lg border border-line bg-surface-2 text-center">
-              <span className="text-[11px] text-muted block mb-0.5">رکوردهای مشکوک در اجراها</span>
-              <span className="text-base font-mono font-bold text-ochre">۵ از ۴۲</span>
-              <span className="text-[10px] text-muted block">معادل ۱۲٪ کل داده‌های ارزیابی‌شده</span>
+            <div className="p-3 rounded-lg border border-line bg-surface-2 text-center space-y-1">
+              <div className="flex items-center justify-center gap-1.5">
+                <span className="text-[11px] text-muted block">رکوردهای مشکوک در اجراها</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[9px] font-bold">
+                  داده‌ی نمایشی
+                </span>
+              </div>
+              <span className="text-base font-mono font-bold text-ochre block">
+                {formatRatio(suspiciousCount, datasetCount)}
+              </span>
+              <span className="text-[10px] text-muted block">
+                معادل {formatPct(suspiciousPct)} کل داده‌های ارزیابی‌شده
+              </span>
             </div>
 
-            <div className="p-3 rounded-lg border border-line bg-surface-2 text-center">
-              <span className="text-[11px] text-muted block mb-0.5">نرخ خطای گمنام‌سازی شناسایی‌شده</span>
-              <span className="text-base font-mono font-bold text-good">۱٫۵٪</span>
+            <div className="p-3 rounded-lg border border-line bg-surface-2 text-center space-y-1">
+              <div className="flex items-center justify-center gap-1.5">
+                <span className="text-[11px] text-muted block">نرخ خطای گمنام‌سازی شناسایی‌شده</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[9px] font-bold">
+                  داده‌ی نمایشی
+                </span>
+              </div>
+              <span className="text-base font-mono font-bold text-good block">۱٫۵٪</span>
               <span className="text-[10px] text-muted block">علامت‌گذاری شده توسط کارشناسان (P)</span>
             </div>
           </div>
@@ -226,10 +252,19 @@ export const ResultsStep: React.FC<ResultsStepProps> = ({
       {/* TAB 2: PER-LABEL METRICS */}
       {activeTab === 'perlabel' && (
         <div className="bg-surface border border-line rounded-xl p-6 max-w-4xl space-y-4">
-          <h3 className="font-bold text-base text-ink">تفکیک سنجه‌های F1 به ازای هر یک از ۸ برچسب</h3>
-          <p className="text-xs text-muted">
-            بررسی نقاط قوت و ضعف مدل در شناسایی برچسب‌های مختلف
-          </p>
+          <div className="flex items-center justify-between border-b border-line pb-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-base text-ink">تفکیک سنجه‌های F1 به ازای هر یک از ۸ برچسب</h3>
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold">
+                  داده‌ی نمایشی
+                </span>
+              </div>
+              <p className="text-xs text-muted mt-0.5">
+                بررسی نقاط قوت و ضعف مدل در شناسایی برچسب‌های مختلف
+              </p>
+            </div>
+          </div>
 
           <div className="data-table-container">
             <table className="data-table" dir="rtl">

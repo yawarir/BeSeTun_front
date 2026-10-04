@@ -34,6 +34,7 @@ import {
 import { AppTheme } from '../types';
 import { MAIN_STEPS } from '../mockData';
 import { BisotunLogo } from './BisotunLogo';
+import { formatRatio, toFaDigits } from '../lib/formatFa';
 
 interface LandingPageProps {
   onGoLogin: () => void;
@@ -50,7 +51,8 @@ const STEP_ICONS: Record<string, React.ElementType> = {
   results: Award,
 };
 
-// Five steps of Phase 2 based on user's exact specification
+// Six steps of Phase 2 based on user's exact specification:
+// Step 4 divided into: 4. اجرای فاین تیون and 5. بازبینی نتایج و تست عملکرد
 const PHASE_TWO_STEPS = [
   {
     stepNumber: 1,
@@ -72,14 +74,20 @@ const PHASE_TWO_STEPS = [
   },
   {
     stepNumber: 4,
-    title: 'اجرای فاین‌تیون و بازبینی بلادرنگ نتایج و عملکرد',
-    desc: 'پایش زنده نمودار تابع زیان (Loss)، سنجش سرعت همگرایی و ارزیابی خروجی مدل روی داده‌های آزمون اعتبارسنجی.',
-    highlight: 'پایش بلادرنگ Loss',
+    title: 'اجرای فاین‌تیون',
+    desc: 'آغاز فرآیند آموزش محلی، محاسبه گرادیان‌ها، بهینه‌سازی وزن‌ها و پایش زنده نمودار تابع زیان (Loss) و سرعت همگرایی.',
+    highlight: 'آموزش و بهینه‌سازی وزن‌ها',
   },
   {
     stepNumber: 5,
+    title: 'بازبینی نتایج و تست عملکرد',
+    desc: 'سنجش و ارزیابی ماتریس دقت و F1 روی داده‌های آزمون، مقایسه با خط پایه و آزمودن زنده مدل روی متن‌های دلخواه آزاد.',
+    highlight: 'ارزیابی F1 و تست زنده',
+  },
+  {
+    stepNumber: 6,
     title: 'خروجی مدل اختصاصی و در صورت نیاز هاست و ارائه API',
-    desc: 'دریافت وزن‌های مدل فاین‌تیون‌شده (Safetensors / PyTorch) و امکان هاستینگ مستقیم درون سامانه با ارائه وب‌سرویس API امن.',
+    desc: 'دریافت وزن‌های مدل فاین‌تیون‌شده (Safetensors / PyTorch / GGUF) و امکان هاستینگ مستقیم درون سامانه با ارائه وب‌سرویس API امن.',
     highlight: 'مدل آماده + وب‌سرویس API',
   },
 ];
@@ -253,8 +261,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span className="text-xs text-muted block">فاین‌تیون مدل دلخواه</span>
             </div>
             <div className="p-4 rounded-xl bg-surface border border-line text-center space-y-0.5">
-              <span className="text-base font-black text-ink">کلون سازمانی</span>
-              <span className="text-xs text-muted block">۱۰۰٪ آفلاین On-Premises</span>
+              <span className="text-base font-black text-ink">امنیت و استقلال</span>
+              <span className="text-xs text-muted block">پیش‌فرض بدون اینترنت</span>
             </div>
             <div className="p-4 rounded-xl bg-surface border border-line text-center space-y-0.5">
               <span className="text-base font-black text-ochre">سرویس ابری</span>
@@ -336,27 +344,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
 
               <p className="text-xs text-muted leading-relaxed">
-                تغذیه مستقیم دیتاست طلایی فاز اول به مدل‌های طبقه‌بندی زبانی (مانند ParsBERT و FaBERT) جهت آموزش دسته‌بند متن، پایش زنده تابع زیان (Loss) و استخراج فایل وزن‌های نهایی مدل.
+                تغذیه مستقیم دیتاست طلایی فاز اول به دو مسیر آموزش و تنظیم دقیق:
               </p>
 
-              <div className="space-y-2 pt-2 text-xs">
-                <div className="flex items-center gap-2 text-ink">
-                  <CheckCircle2 className="w-4 h-4 text-good shrink-0" />
-                  <span>انتخاب مدل پایه دلخواه یا بارگذاری فایل وزن‌های مدل سازمانی</span>
+              <div className="space-y-2.5 pt-2 text-xs">
+                <div className="p-3 rounded-xl bg-surface-2 border border-line flex items-start gap-2.5 text-ink">
+                  <CheckCircle2 className="w-4 h-4 text-good shrink-0 mt-0.5" />
+                  <div>
+                    <b className="text-ink font-bold block text-xs">
+                      مسیر اول (A): طبقه‌بند فارسی (ParsBERT، FaBERT) — روی CPU هم اجرا می‌شود
+                    </b>
+                    <span className="text-[11px] text-muted leading-relaxed">
+                      آموزش سریع و کم‌هزینه طبقه‌بندهای متنی تخصصی با معماری برت فارسی حتی بدون نیاز به کارت گرافیک مجزا.
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-ink">
-                  <CheckCircle2 className="w-4 h-4 text-good shrink-0" />
-                  <span>پایش بلادرنگ تابع زیان (Loss)، نرخ همگرایی و خطای پیش‌بینی مدل</span>
+
+                <div className="p-3 rounded-xl bg-surface-2 border border-line flex items-start gap-2.5 text-ink">
+                  <CheckCircle2 className="w-4 h-4 text-good shrink-0 mt-0.5" />
+                  <div>
+                    <b className="text-ink font-bold block text-xs">
+                      مسیر دوم (B): مسیر اختیاری LoRA روی مدل مولد (مانند Qwen یا Llama) — فقط با کارت گرافیک؛ خروجی Safetensors و GGUF برای اجرا در LM Studio یا Ollama
+                    </b>
+                    <span className="text-[11px] text-muted leading-relaxed">
+                      تنظیم دقیق پارامترهای مدل‌های بزرگ زبانی با آدپتورهای کم‌پارامتر LoRA و تولید فرمت‌های استاندارد صنعتی.
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-ink">
+
+                <div className="flex items-center gap-2 text-ink pt-1">
                   <CheckCircle2 className="w-4 h-4 text-good shrink-0" />
-                  <span>خروجی فایل Safetensors/PyTorch و امکان ارائه API هاست‌شده اختصاصی</span>
+                  <span className="font-semibold">انتشار مدل به‌صورت API با کلید دسترسی</span>
                 </div>
               </div>
 
               <div className="pt-3 border-t border-line/60 flex items-center justify-between text-xs text-muted">
                 <span>دست‌آورد فاز دوم:</span>
-                <span className="font-mono text-good font-bold">مدل فاین‌تیون‌شده سازمانی + وب‌سرویس API</span>
+                <span className="font-mono text-good font-bold">خروجی Safetensors و GGUF + انتشار مدل به‌صورت API با کلید دسترسی</span>
               </div>
             </div>
           </div>
@@ -379,7 +403,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {MAIN_STEPS.map((step) => {
+            {MAIN_STEPS.filter((s) => s.stepNumber > 0).map((step) => {
               const Icon = STEP_ICONS[step.key] || Tags;
               return (
                 <div
@@ -388,7 +412,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="w-8 h-8 rounded-xl bg-accent-soft text-accent flex items-center justify-center font-mono font-bold text-xs">
-                      ۰{step.stepNumber}
+                      ۰{toFaDigits(step.stepNumber)}
                     </span>
                     <Icon className="w-5 h-5 text-muted group-hover:text-accent transition-colors" />
                   </div>
@@ -407,7 +431,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* SECTION 3: PHASE TWO 5-STEP FINE-TUNING PIPELINE (USER REQUESTED EDIT 1) */}
+      {/* SECTION 3: PHASE TWO 6-STEP FINE-TUNING PIPELINE */}
       <section id="phase-two-steps" className="py-16 px-6 border-t border-line/60 bg-surface-2/40">
         <div className="max-w-6xl mx-auto space-y-10">
           <div className="text-center space-y-2 max-w-3xl mx-auto">
@@ -416,7 +440,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span>مراحل فاز دوم</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black text-ink">
-              مراحل پنج‌گانه فاین‌تیون مدل دلخواه در فاز دوم
+              مراحل شش‌گانه فاین‌تیون مدل دلخواه در فاز دوم
             </h2>
             <p className="text-xs sm:text-sm text-muted">
               جریان روان آموزش مدل بر پایه داده‌های طلایی فاز اول با بالاترین استانداردهای پردازش زبان طبیعی
@@ -432,7 +456,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="w-8 h-8 rounded-xl bg-good-soft text-good flex items-center justify-center font-mono font-bold text-xs">
-                      ۰{step.stepNumber}
+                      ۰{toFaDigits(step.stepNumber)}
                     </span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-2 border border-line text-muted">
                       {step.highlight}
@@ -449,7 +473,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-line/50 flex items-center justify-between text-[11px] text-muted">
-                  <span>گام {step.stepNumber} از ۵</span>
+                  <span>گام {toFaDigits(step.stepNumber)} از {toFaDigits(6)}</span>
                   <Check className="w-3.5 h-3.5 text-good" />
                 </div>
               </div>
@@ -490,9 +514,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </p>
 
               <div className="space-y-2 text-xs">
-                <div className="p-3 rounded-xl bg-surface-2 border border-line flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-surface-2 border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                   <span className="text-muted">وضعیت اتصال اینترنت:</span>
-                  <span className="font-bold text-crit">کاملاً مسدود و آفلاین (Isolated)</span>
+                  <span className="font-bold text-good text-right sm:text-left leading-relaxed">
+                    پیش‌فرض بدون اینترنت؛ اگر مدلی بیرون از شبکه انتخاب شود، هشدار داده و در گزارش اجرا ثبت می‌شود
+                  </span>
                 </div>
                 <div className="p-3 rounded-xl bg-surface-2 border border-line flex items-center justify-between">
                   <span className="text-muted">موتورهای استنتاج محلی:</span>

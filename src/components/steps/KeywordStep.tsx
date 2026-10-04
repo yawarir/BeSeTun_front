@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Hash, Search, ArrowRight, CheckCircle2, BookOpen, BarChart3, HelpCircle, AlertTriangle, Sparkles } from 'lucide-react';
 import { LabelItem } from '../../types';
+import { KEYWORD_RULES, KEYWORD_BENCHMARK_ROWS } from '../../demo';
+import { formatInt, formatDec } from '../../lib/formatFa';
 
 interface KeywordStepProps {
   labels?: LabelItem[];
@@ -11,23 +13,6 @@ export const KeywordStep: React.FC<KeywordStepProps> = ({ labels = [], onGoToLab
   const [testSentence, setTestSentence] = useState(
     'سه هفته است منتظر صدور مجوز هستم ولی هیچ پاسخی نداده‌اند.'
   );
-
-  const KEYWORD_DICTIONARY: Record<string, string[]> = {
-    'کندی پاسخ‌گویی': ['سه هفته', 'طولانی', 'تاخیر', 'معطل', 'پاسخ نداده', 'چند ماه', 'پیگیری'],
-    'هزینه‌ی بالا': ['تعرفه', 'دو برابر', 'گران', 'هزینه', 'مبلغ بالا', 'پول اضافه'],
-    'کیفیت پایین': ['ناقص', 'کیفیت', 'اشتباه', 'خراب', 'دوباره کاری', 'ایراد'],
-    'کیفیت پایین خدمت': ['ناقص', 'کیفیت', 'اشتباه', 'خراب', 'دوباره کاری', 'ایراد'],
-    'رفتار کارکنان': ['تند', 'لحن', 'بی‌احترامی', 'توهین', 'قطع کرد', 'برخورد بد'],
-    'رفتار نامناسب پرسنل': ['تند', 'لحن', 'بی‌احترامی', 'توهین', 'قطع کرد', 'برخورد بد'],
-    'پیچیدگی فرایند': ['هفت امضا', 'پیچیده', 'گیج‌کننده', 'مراحل زیاد', 'بوروکراسی'],
-    'پیچیدگی و سردرگمی مراحل': ['هفت امضا', 'پیچیده', 'گیج‌کننده', 'مراحل زیاد', 'بوروکراسی'],
-    'مشکل فنی': ['خطا', 'سامانه', 'ارور', 'قطع شد', 'پرید', '۵۰۰', 'لود نشد'],
-    'خطا و قطعی سامانه برخط': ['خطا', 'سامانه', 'ارور', 'قطع شد', 'پرید', '۵۰۰', 'لود نشد'],
-    'اطلاعات ناکافی': ['نگفتند', 'سایت نبود', 'اطلاع‌رسانی', 'مدارک نامشخص', 'راهنمایی'],
-    'عدم شفافیت ضوابط': ['نگفتند', 'سایت نبود', 'اطلاع‌رسانی', 'مدارک نامشخص', 'راهنمایی'],
-    'دسترسی دشوار': ['شعبه دور', 'ساعت اداری', 'تلاقی', 'نقطه دورافتاده', 'معلولین'],
-    'محدودیت دسترسی مکانی/زمانی': ['شعبه دور', 'ساعت اداری', 'تلاقی', 'نقطه دورافتاده', 'معلولین'],
-  };
 
   // Guard: If taxonomy is empty, prompt user to extract labels first
   if (labels.length === 0) {
@@ -54,7 +39,7 @@ export const KeywordStep: React.FC<KeywordStepProps> = ({ labels = [], onGoToLab
   }
 
   // Run keyword matcher on test sentence
-  const matchedLabels = Object.entries(KEYWORD_DICTIONARY)
+  const matchedLabels = Object.entries(KEYWORD_RULES)
     .filter(([_, words]) => words.some((w) => testSentence.includes(w)))
     .map(([label]) => label);
 
@@ -118,9 +103,16 @@ export const KeywordStep: React.FC<KeywordStepProps> = ({ labels = [], onGoToLab
 
       {/* Benchmark Table with Pixel-Perfect Alignment */}
       <div className="bg-surface border border-line rounded-2xl p-6 space-y-4 shadow-2xs">
-        <h4 className="font-bold text-sm text-ink">
-          جدول مقایسه دقت روش واژه‌محور با مدل‌های هوش مصنوعی
-        </h4>
+        <div className="flex items-center justify-between border-b border-line pb-3">
+          <div className="flex items-center gap-2">
+            <h4 className="font-bold text-sm text-ink">
+              جدول مقایسه دقت روش واژه‌محور با مدل‌های هوش مصنوعی
+            </h4>
+            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold">
+              داده‌ی نمایشی
+            </span>
+          </div>
+        </div>
 
         <div className="data-table-container">
           <table className="data-table" dir="rtl">
@@ -170,11 +162,18 @@ export const KeywordStep: React.FC<KeywordStepProps> = ({ labels = [], onGoToLab
 
       {/* Dictionary Table from active labels */}
       <div className="bg-surface border border-line rounded-2xl p-5 space-y-4 shadow-2xs">
-        <h4 className="font-bold text-sm text-ink">فهرست کلیدواژه‌های تطبیقی هر برچسب در تاکسونومی فعال</h4>
+        <div className="flex items-center justify-between border-b border-line pb-2">
+          <div className="flex items-center gap-2">
+            <h4 className="font-bold text-sm text-ink">فهرست کلیدواژه‌های تطبیقی هر برچسب در تاکسونومی فعال</h4>
+            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold">
+              داده‌ی نمایشی
+            </span>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {labels.map((lb) => {
-            const keywords = KEYWORD_DICTIONARY[lb.name] || ['شکایت', 'پیگیری', 'رسیدگی'];
+            const keywords = KEYWORD_RULES[lb.name] || ['شکایت', 'پیگیری', 'رسیدگی'];
             return (
               <div
                 key={lb.id}
@@ -183,7 +182,7 @@ export const KeywordStep: React.FC<KeywordStepProps> = ({ labels = [], onGoToLab
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-xs text-ink">{lb.name}</span>
                   <span className="text-[10px] font-mono text-muted">
-                    {keywords.length} کلیدواژه
+                    {formatInt(keywords.length)} کلیدواژه
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-1">

@@ -12,6 +12,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { INITIAL_LABELS } from '../../mockData';
+import { formatPct } from '../../lib/formatFa';
 
 export const FineTuneStep: React.FC = () => {
   const [dataCondition, setDataCondition] = useState<'silver' | 'plus' | 'both'>('both');
@@ -86,12 +87,12 @@ export const FineTuneStep: React.FC = () => {
           {[
             {
               id: 'silver',
-              title: 'فقط برچسب نقره‌ای مدل',
+              title: 'دیتاست نقره ای : برچسب مدل',
               desc: 'آموزش صرفاً روی خروجی اولیه هوش مصنوعی بدون دخالت کارشناس',
             },
             {
               id: 'plus',
-              title: 'برچسب نقره‌ای + اصلاح کارشناس',
+              title: 'دیتاست طلایی: دیتاست نقره ای بازبینی شده',
               desc: 'جایگزینی نیمه بازبینی‌شده و حل اختلاف‌شده توسط کارشناس',
             },
             {
@@ -119,7 +120,7 @@ export const FineTuneStep: React.FC = () => {
       {/* 2. Presets & Models */}
       <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-line pb-3">
-          <h4 className="font-bold text-sm text-ink">۲. مدل‌ها و پیش‌تنظیم آموزش (Training Presets)</h4>
+          <h4 className="font-bold text-sm text-ink">۲. مدل‌ها و پیش‌تنظیم پارامترهای آموزش (Hyperparameters)</h4>
           <div className="flex items-center gap-1.5 p-1 bg-surface-2 rounded-lg border border-line text-xs">
             <button
               onClick={() => setPreset('quick')}
@@ -173,12 +174,20 @@ export const FineTuneStep: React.FC = () => {
             <input type="checkbox" defaultChecked className="w-4 h-4 accent-accent rounded" />
           </label>
         </div>
+      </div>
 
-        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* 4. Execution Step (User Request Step 4: اجرای فاین تیون) */}
+      <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
+        <h4 className="font-bold text-sm text-ink">۴. اجرای فاین‌تیون</h4>
+        <p className="text-xs text-muted leading-relaxed">
+          فرآیند محاسبه گرادیان، بهینه‌سازی پارامترها و پایش بلادرنگ تابع زیان (Loss) به صورت محلی.
+        </p>
+
+        <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <button
             onClick={startTraining}
             disabled={isTraining}
-            className="px-6 py-2.5 bg-accent text-on-accent text-xs font-bold rounded-lg hover:bg-accent-2 disabled:opacity-50 transition-colors flex items-center gap-2 self-start sm:self-auto shadow-xs"
+            className="px-6 py-2.5 bg-accent text-on-accent text-xs font-bold rounded-lg hover:bg-accent-2 disabled:opacity-50 transition-colors flex items-center gap-2 self-start sm:self-auto shadow-xs cursor-pointer"
           >
             <Play className="w-4 h-4 fill-current" />
             <span>{isTraining ? 'در حال آموزش ترنسفورمر...' : 'شروع آموزش و برازش مدل‌ها'}</span>
@@ -187,7 +196,7 @@ export const FineTuneStep: React.FC = () => {
           {trainDone && (
             <span className="text-xs text-good font-semibold flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
-              <span>آموزش تکمیل شد؛ مدل‌ها آماده آزمون زنده هستند.</span>
+              <span>آموزش تکمیل شد؛ مدل‌ها آماده بازبینی نتایج و تست عملکرد هستند.</span>
             </span>
           )}
         </div>
@@ -196,7 +205,7 @@ export const FineTuneStep: React.FC = () => {
           <div className="space-y-1.5 pt-2">
             <div className="flex justify-between text-xs text-muted">
               <span>در حال محاسبه گرادیان و بهینه‌سازی وزن‌ها...</span>
-              <span className="font-mono font-bold text-accent">{trainProgress}٪</span>
+              <span className="font-mono font-bold text-accent">{formatPct(trainProgress)}</span>
             </div>
             <div className="h-2 rounded-full bg-track overflow-hidden">
               <div
@@ -208,9 +217,16 @@ export const FineTuneStep: React.FC = () => {
         )}
       </div>
 
-      {/* 3. Performance Matrix */}
-      <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
-        <h4 className="font-bold text-sm text-ink">۳. نتایج ارزیابی مدل‌های آموزش‌دیده روی بخش آزمون (Test Split)</h4>
+      {/* 5. Results Review & Performance Test (User Request Step 5: بازبینی نتایج و تست عملکرد) */}
+      <div className="bg-surface border border-line rounded-xl p-5 space-y-5">
+        <div className="flex items-center justify-between border-b border-line pb-3">
+          <div className="flex items-center gap-2">
+            <h4 className="font-bold text-sm text-ink">۵. بازبینی نتایج و تست عملکرد (ارزیابی Test Split و آزمودن زنده)</h4>
+            <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold">
+              داده‌ی نمایشی
+            </span>
+          </div>
+        </div>
 
         <div className="border border-line rounded-lg overflow-x-auto text-xs">
           <table className="w-full text-right">
@@ -244,44 +260,44 @@ export const FineTuneStep: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
 
-      {/* 4. Live Custom Text Tester (Specified in PDF: "آزمودن مدل روی متن دلخواه") */}
-      <div className="bg-surface border border-line rounded-xl p-5 space-y-4">
-        <h4 className="font-bold text-sm text-ink">۴. آزمودن زنده مدل آموزش‌دیده روی متن دلخواه</h4>
-        <p className="text-xs text-muted">
-          متن آزاد یک شکایت جدید را وارد کنید تا مدل فاین‌تیون‌شده فوراً برچسب‌های محتمل را استخراج کند.
-        </p>
+        {/* Live Custom Text Tester */}
+        <div className="pt-3 border-t border-line space-y-3">
+          <b className="text-xs font-bold text-ink block">آزمودن زنده مدل روی متن دلخواه:</b>
+          <p className="text-xs text-muted">
+            متن آزاد یک شکایت جدید را وارد کنید تا مدل فاین‌تیون‌شده فوراً برچسب‌های محتمل را استخراج کند.
+          </p>
 
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={customTestInput}
-              onChange={(e) => setCustomTestInput(e.target.value)}
-              placeholder="متن دلخواه خود را بنویسید..."
-              className="flex-1 h-10 px-3 border border-line-strong rounded-lg bg-surface text-xs text-ink focus:border-accent"
-            />
-            <button
-              onClick={runCustomTest}
-              className="px-4 py-2 bg-accent text-on-accent text-xs font-semibold rounded-lg hover:bg-accent-2 transition-colors flex items-center gap-1.5 shrink-0"
-            >
-              <Send className="w-3.5 h-3.5" />
-              <span>پیش‌بینی مدل</span>
-            </button>
-          </div>
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={customTestInput}
+                onChange={(e) => setCustomTestInput(e.target.value)}
+                placeholder="متن دلخواه خود را بنویسید..."
+                className="flex-1 h-10 px-3 border border-line-strong rounded-lg bg-surface text-xs text-ink focus:border-accent"
+              />
+              <button
+                onClick={runCustomTest}
+                className="px-4 py-2 bg-accent text-on-accent text-xs font-semibold rounded-lg hover:bg-accent-2 transition-colors flex items-center gap-1.5 shrink-0 cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>پیش‌بینی مدل</span>
+              </button>
+            </div>
 
-          <div className="p-3.5 rounded-lg bg-surface-2 border border-line flex items-center justify-between gap-3 text-xs">
-            <span className="text-muted font-medium">برچسب‌های استخراج‌شده توسط FaBERT:</span>
-            <div className="flex gap-1.5 flex-wrap">
-              {testResult.map((res) => (
-                <span
-                  key={res}
-                  className="px-2.5 py-1 rounded-full bg-accent text-on-accent font-bold text-[11px] shadow-xs"
-                >
-                  {res}
-                </span>
-              ))}
+            <div className="p-3.5 rounded-lg bg-surface-2 border border-line flex items-center justify-between gap-3 text-xs">
+              <span className="text-muted font-medium">برچسب‌های استخراج‌شده توسط FaBERT:</span>
+              <div className="flex gap-1.5 flex-wrap">
+                {testResult.map((res) => (
+                  <span
+                    key={res}
+                    className="px-2.5 py-1 rounded-full bg-accent text-on-accent font-bold text-[11px] shadow-xs"
+                  >
+                    {res}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>

@@ -26,25 +26,28 @@ import {
   INITIAL_EXPERTS,
   INITIAL_ADJUDICATION_ITEMS,
 } from '../../mockData';
-import { AdjudicationItem, LabelItem, OperatorAnswer } from '../../types';
+import { AdjudicationItem, LabelItem, OperatorAnswer, UserRole } from '../../types';
+import { formatInt, formatRatio, toFaDigits } from '../../lib/formatFa';
 
 interface ExpertStepProps {
   activeTab: string;
   onChangeTab: (tab: string) => void;
   onOpenShortcuts: () => void;
-  role?: string;
+  role?: UserRole;
+  datasetCount?: number;
 }
 
 export const ExpertStep: React.FC<ExpertStepProps> = ({
   activeTab,
   onChangeTab,
   onOpenShortcuts,
-  role = 'operator',
+  role = 'expert',
+  datasetCount = 42,
 }) => {
   // Strict Double-Blind Protocol:
-  // Operator ONLY has access to 'work' station! Adjudication and other experts' answers are strictly hidden.
+  // Expert ONLY has access to 'work' station! Adjudication and other experts' answers are strictly hidden.
   // Admin ONLY has access to 'progress' and 'adj' (adjudication).
-  const effectiveTab = role === 'operator' ? 'work' : (activeTab === 'work' ? 'progress' : activeTab);
+  const effectiveTab = role === 'expert' ? 'work' : (activeTab === 'work' ? 'progress' : activeTab);
 
   // Annotation Station State
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -204,9 +207,9 @@ export const ExpertStep: React.FC<ExpertStepProps> = ({
       ) : null}
 
       {/* ======================================================== */}
-      {/* TAB 1: OPERATOR WORK STATION (OPERATOR ONLY) */}
+      {/* TAB 1: EXPERT WORK STATION (EXPERT ONLY) */}
       {/* ======================================================== */}
-      {role === 'operator' && effectiveTab === 'work' && (
+      {role === 'expert' && effectiveTab === 'work' && (
         <div className="space-y-4 max-w-5xl mx-auto">
           {/* Greeting & Main Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pt-1">
@@ -256,10 +259,10 @@ export const ExpertStep: React.FC<ExpertStepProps> = ({
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-black font-mono text-ink">
-                  {(completedCount).toLocaleString('fa-IR')} از {totalItemsCount.toLocaleString('fa-IR')}
+                  {formatRatio(completedCount, totalItemsCount)}
                 </span>
                 <span className="text-xs text-muted font-medium">
-                  ({(completedCount).toLocaleString('fa-IR')} متن کامل شده — ۷۸٪ پیشرفت)
+                  ({formatInt(completedCount)} متن کامل شده — ۷۸٪ پیشرفت)
                 </span>
               </div>
 
@@ -345,7 +348,7 @@ export const ExpertStep: React.FC<ExpertStepProps> = ({
               <div className="p-3 rounded-xl bg-accent-soft/30 border border-accent/20 text-xs text-accent flex items-center justify-between">
                 <span>پیشنهاد مدل زبانی برای این متن:</span>
                 <div className="flex gap-1.5">
-                  {currentText?.modelSuggestions.map((sid) => (
+                  {currentText?.modelSuggestions.map((sid: number) => (
                     <span key={sid} className="px-2 py-0.5 rounded bg-surface border border-accent/40 font-bold">
                       {INITIAL_LABELS[sid]?.name}
                     </span>

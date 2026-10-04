@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { INITIAL_CANDIDATE_LABELS, INITIAL_LABELS } from '../../mockData';
 import { CandidateLabel, LabelItem, FewShotPromptExample } from '../../types';
+import { formatInt, formatRatio, toFaDigits } from '../../lib/formatFa';
 
 interface LabelsStepProps {
   activeTab: string;
@@ -427,7 +428,7 @@ export const LabelsStep: React.FC<LabelsStepProps> = ({
                   <input
                     type="text"
                     disabled
-                    value={`پوشش ${datasetCount.toLocaleString('fa-IR')} متن پالایش‌شده مرحله ۱`}
+                    value={`پوشش ${formatInt(datasetCount)} متن پالایش‌شده مرحله ۱`}
                     className="w-full px-3 py-2 border border-line rounded-xl bg-surface-2 text-xs font-mono text-muted"
                   />
                 </div>
@@ -445,7 +446,7 @@ export const LabelsStep: React.FC<LabelsStepProps> = ({
               </div>
 
               <div className="p-3.5 rounded-xl bg-surface-2/60 border border-line text-xs text-muted flex items-center justify-between">
-                <span>وضعیت ورودی: <b>متن‌های تمیزشده آماده استخراج ({datasetCount.toLocaleString('fa-IR')} متن)</b></span>
+                <span>وضعیت ورودی: <b>متن‌های تمیزشده آماده استخراج ({formatInt(datasetCount)} متن)</b></span>
                 <span className="font-mono text-accent font-semibold">بسته‌های ۱۵تایی</span>
               </div>
 
@@ -467,7 +468,7 @@ export const LabelsStep: React.FC<LabelsStepProps> = ({
                 <h3 className="font-bold text-sm text-ink">
                   مدل زبانی در حال پردازش دسته‌ای و استخراج دلایل شکایات...
                 </h3>
-                <span className="font-mono text-xs text-accent font-bold">بسته {jobProgress} از ۱۵</span>
+                <span className="font-mono text-xs text-accent font-bold">بسته {formatInt(jobProgress)} از {formatInt(15)}</span>
               </div>
               <div className="h-2 rounded-full bg-track overflow-hidden">
                 <div
@@ -487,7 +488,7 @@ export const LabelsStep: React.FC<LabelsStepProps> = ({
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-good" />
                   <h3 className="font-bold text-base text-ink">
-                    ۸ برچسب پرتکرار پیشنهادی از متون کشف شد
+                    {formatInt(candidates.length)} برچسب پرتکرار پیشنهادی از متون کشف شد
                   </h3>
                 </div>
                 <button
@@ -503,29 +504,32 @@ export const LabelsStep: React.FC<LabelsStepProps> = ({
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {candidates.map((cand) => (
-                  <label
-                    key={cand.id}
-                    className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                      cand.selected
-                        ? 'bg-accent-soft/40 border-accent/70'
-                        : 'bg-surface-2 border-line text-muted'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <input
-                        type="checkbox"
-                        checked={cand.selected}
-                        onChange={() => toggleCandidate(cand.id)}
-                        className="w-4 h-4 accent-accent rounded"
-                      />
-                      <span className="text-xs font-bold text-ink">{cand.name}</span>
-                    </div>
-                    <span className="text-[11px] font-mono text-muted">
-                      در {cand.frequency.toLocaleString('fa-IR')} متن
-                    </span>
-                  </label>
-                ))}
+                {candidates.map((cand) => {
+                  const actualFrequency = Math.min(cand.frequency, datasetCount);
+                  return (
+                    <label
+                      key={cand.id}
+                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
+                        cand.selected
+                          ? 'bg-accent-soft/40 border-accent/70'
+                          : 'bg-surface-2 border-line text-muted'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={cand.selected}
+                          onChange={() => toggleCandidate(cand.id)}
+                          className="w-4 h-4 accent-accent rounded"
+                        />
+                        <span className="text-xs font-bold text-ink">{cand.name}</span>
+                      </div>
+                      <span className="text-[11px] font-mono text-muted">
+                        در {formatInt(actualFrequency)} متن
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
 
               <div className="pt-2">
@@ -534,7 +538,7 @@ export const LabelsStep: React.FC<LabelsStepProps> = ({
                   className="px-5 py-2.5 bg-accent text-on-accent text-xs font-bold rounded-xl hover:bg-accent-2 transition-colors cursor-pointer shadow-xs flex items-center gap-2"
                 >
                   <Check className="w-4 h-4 stroke-[3]" />
-                  <span>پذیرفتن برچسب‌های انتخاب‌شده و انتقال به تاکسونومی ({candidates.filter((c) => c.selected).length} برچسب)</span>
+                  <span>پذیرفتن برچسب‌های انتخاب‌شده و انتقال به تاکسونومی ({formatInt(candidates.filter((c) => c.selected).length)} برچسب)</span>
                 </button>
               </div>
             </div>

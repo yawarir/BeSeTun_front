@@ -120,18 +120,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedRole('operator');
-                  setUsername('annotator1@besetun.local');
+                  setSelectedRole('expert');
+                  setUsername('expert1@besetun.local');
                 }}
                 className={`p-3 rounded-xl border text-right transition-all cursor-pointer ${
-                  selectedRole === 'operator'
+                  selectedRole === 'expert'
                     ? 'bg-accent-soft/80 border-accent text-accent shadow-xs ring-1 ring-accent'
                     : 'bg-surface-2/60 border-line text-ink-2 hover:bg-surface-2'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
                   <UserCheck className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold">اوپراتور داده</span>
+                  <span className="text-xs font-bold">کارشناس</span>
                 </div>
                 <span className="text-[10px] text-muted block leading-tight">
                   میزکار خلوت برچسب‌زنی مرجع و بازبینی

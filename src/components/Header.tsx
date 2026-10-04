@@ -82,17 +82,17 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </button>
 
-        <div className="h-6 w-px bg-line hidden sm:block" />
+        <div className="h-6 w-px bg-line hidden md:block" />
 
-        {/* Project Selector Badge */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-2 border border-line text-xs">
+        {/* Project Selector Badge (hidden below 768px per user requirement) */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-2 border border-line text-xs">
           <span className="text-muted">پروژه:</span>
           <span className="font-semibold text-ink truncate max-w-[180px]">{projectName}</span>
         </div>
       </div>
 
-      {/* Center Actions: Role Switcher for seamless UX testing */}
-      <div className="flex items-center gap-2">
+      {/* Center Actions: Role Switcher (hidden below 768px, shown in mobile drawer) */}
+      <div className="hidden md:flex items-center gap-2">
         <div className="flex items-center p-1 rounded-lg bg-surface-2 border border-line">
           <button
             onClick={() => onChangeRole('admin')}
@@ -107,22 +107,27 @@ export const Header: React.FC<HeaderProps> = ({
             <span>مدیر پروژه</span>
           </button>
           <button
-            onClick={() => onChangeRole('operator')}
+            onClick={() => onChangeRole('expert')}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md transition-all ${
-              role === 'operator'
+              role === 'expert'
                 ? 'bg-surface text-accent shadow-xs'
                 : 'text-ink-2 hover:text-ink'
             }`}
-            title="نمای متمرکز برچسب‌زن / اوپراتور داده با رابط کاربری روان و بهینه"
+            title="نمای متمرکز برچسب‌زن / کارشناس با رابط کاربری روان و بهینه"
           >
             <UserCheck className="w-3.5 h-3.5" />
-            <span>اوپراتور داده</span>
+            <span>کارشناس</span>
           </button>
         </div>
       </div>
 
-      {/* Right Controls: Security Badge, Guide, Shortcuts, Theme, User */}
+      {/* Right Controls: Security Badge, Demo Badge, Guide, Shortcuts, Theme, User */}
       <div className="flex items-center gap-2">
+        {/* Permanent Demo Data Badge (User Request Item 5) */}
+        <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold shrink-0">
+          داده‌ی نمایشی
+        </span>
+
         {/* Isolation Badge */}
         {isIsolated && (
           <div
@@ -134,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
-        {/* Operator Smart Guide Button */}
+        {/* Expert Smart Guide Button */}
         <button
           onClick={onToggleGuide}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors border ${
@@ -142,16 +147,16 @@ export const Header: React.FC<HeaderProps> = ({
               ? 'bg-accent text-on-accent border-accent'
               : 'bg-surface-2 text-ink-2 border-line hover:text-ink'
           }`}
-          title="راهنمای مرحله‌به‌مرحله برای اوپراتور"
+          title="راهنمای مرحله‌به‌مرحله برای کارشناس"
         >
           <HelpCircle className="w-3.5 h-3.5" />
           <span className="hidden md:inline">راهنمای گام‌به‌گام</span>
         </button>
 
-        {/* Keyboard Shortcuts Button */}
+        {/* Keyboard Shortcuts Button (hidden below 768px, shown in mobile drawer) */}
         <button
           onClick={onOpenShortcuts}
-          className="w-9 h-9 rounded-lg border border-line bg-surface flex items-center justify-center text-ink-2 hover:text-ink hover:bg-surface-2 transition-colors"
+          className="hidden md:flex w-9 h-9 rounded-lg border border-line bg-surface items-center justify-center text-ink-2 hover:text-ink hover:bg-surface-2 transition-colors cursor-pointer"
           title="مشاهده کلیدهای میانبر کیبورد"
           aria-label="کلیدهای میانبر"
         >

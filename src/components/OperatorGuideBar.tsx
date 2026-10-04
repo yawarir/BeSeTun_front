@@ -14,6 +14,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { OPERATOR_WALKTHROUGH_STEPS } from '../mockData';
+import { formatRatio } from '../lib/formatFa';
 
 export type GuideDisplayMode = 'banner' | 'floating' | 'minimized';
 
@@ -203,7 +204,7 @@ export const OperatorGuideBar: React.FC<OperatorGuideBarProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[11px] font-bold text-accent bg-accent-soft px-2 py-0.5 rounded-full border border-accent/20">
-                راهنمای گام‌به‌گام اوپراتور — مرحله {currentGuideIndex + 1} از {OPERATOR_WALKTHROUGH_STEPS.length}
+                راهنمای گام‌به‌گام کارشناس — مرحله {formatRatio(currentGuideIndex + 1, OPERATOR_WALKTHROUGH_STEPS.length)}
               </span>
             </div>
             <h4 className="text-sm font-extrabold text-ink mt-0.5">{currentStep.title}</h4>
